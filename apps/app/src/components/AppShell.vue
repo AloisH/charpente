@@ -163,7 +163,7 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
               <RouterLink to="/dashboard">
                 <Avatar class="size-8 shrink-0 rounded-lg">
                   <AvatarFallback
-                    class="rounded-lg bg-sidebar-primary font-semibold text-sidebar-primary-foreground"
+                    class="rounded-lg bg-sidebar-primary text-lg font-bold text-sidebar-primary-foreground"
                   >
                     c
                   </AvatarFallback>
