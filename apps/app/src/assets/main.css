@@ -15,3 +15,21 @@
     font-family: var(--font-sans);
   }
 }
+
+/* Dev-banner shimmer (see AppShell.vue) */
+@layer utilities {
+  .animate-dev-shimmer {
+    animation: dev-shimmer 3s ease-in-out infinite;
+  }
+}
+
+@keyframes dev-shimmer {
+  0%,
+  20% {
+    transform: translateX(-150%) skewX(-12deg);
+  }
+  60%,
+  100% {
+    transform: translateX(350%) skewX(-12deg);
+  }
+}

@@ -18,7 +18,6 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import CommandPalette from "@/components/CommandPalette.vue";
-import { Alert, AlertTitle } from "@/components/ui/alert";
 import NavUser from "@/components/NavUser.vue";
 import {
   Sidebar,
@@ -206,13 +205,33 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
       </SidebarContent>
 
       <SidebarFooter>
-        <Alert
+        <div
           v-if="isDev"
-          class="border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-700 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-400 group-data-[collapsible=icon]:hidden"
+          class="relative flex items-center gap-2.5 overflow-hidden rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 px-2.5 py-2 group-data-[collapsible=icon]:hidden"
         >
-          <TriangleAlert class="size-4" />
-          <AlertTitle class="text-xs font-medium">{{ t("common.devBanner") }}</AlertTitle>
-        </Alert>
+          <span
+            class="pointer-events-none absolute inset-y-0 w-1/3 animate-dev-shimmer bg-gradient-to-r from-transparent via-amber-300/25 to-transparent"
+          />
+          <span
+            class="relative flex size-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm"
+          >
+            <FlaskConical class="size-4" />
+            <span class="absolute -top-0.5 -right-0.5 flex size-2">
+              <span
+                class="absolute inline-flex size-full animate-ping rounded-full bg-amber-400 opacity-75"
+              />
+              <span class="relative inline-flex size-2 rounded-full bg-amber-500" />
+            </span>
+          </span>
+          <div class="relative grid leading-tight">
+            <span
+              class="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-xs font-semibold text-transparent dark:from-amber-400 dark:to-orange-400"
+            >
+              {{ t("common.devBanner") }}
+            </span>
+            <span class="font-mono text-[10px] text-muted-foreground">localhost</span>
+          </div>
+        </div>
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
