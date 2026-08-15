@@ -50,7 +50,7 @@
     },
     "permissions": {
       "title": "Des permissions, pas des ifs sur les rôles",
-      "body": "Role::permissions en Rust, can() et <Can> côté Vue. Ajouter un rôle, c'est éditer une fonction — pas chaque garde."
+      "body": "Role::permissions en Rust, can() et {'<'}Can{'>'} côté Vue. Ajouter un rôle, c'est éditer une fonction — pas chaque garde."
     }
   },
   "gates": {

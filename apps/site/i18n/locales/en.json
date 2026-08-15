@@ -50,7 +50,7 @@
     },
     "permissions": {
       "title": "Permissions, not ifs on roles",
-      "body": "Role::permissions in Rust, can() and <Can> in Vue. Adding a role means editing one function — not every guard."
+      "body": "Role::permissions in Rust, can() and {'<'}Can{'>'} in Vue. Adding a role means editing one function — not every guard."
     }
   },
   "gates": {
