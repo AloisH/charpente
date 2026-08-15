@@ -64,7 +64,7 @@ watchEffect(() => {
 });
 // Statically false in production builds — the banner never ships.
 const isDev = import.meta.env.DEV;
-const { user, can, logout } = useAuth();
+const { can, logout } = useAuth();
 const ui = useUiStore();
 
 // App-wide shortcuts (hints rendered via formatShortcut).
@@ -304,9 +304,6 @@ if (isDev) {
           <Separator orientation="vertical" class="!h-4" />
           <h1 class="text-base font-semibold">{{ title }}</h1>
         </template>
-        <div class="ml-auto text-sm text-muted-foreground">
-          {{ user?.display_name }}
-        </div>
       </header>
       <ImpersonationBanner />
       <VerifyEmailBanner />
