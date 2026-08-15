@@ -17,8 +17,8 @@ test("email verification: register → mail arrives → link verifies → banner
     displayName: "Eve",
   });
 
-  // Unverified: the nudge banner is up.
-  const banner = page.getByText(/not verified yet|pas encore vérifiée/i);
+  // Unverified: the sidebar nudge tile is up.
+  const banner = page.getByText(/email not verified|e-mail non vérifié/i);
   await expect(banner).toBeVisible();
 
   // The verification mail landed in Mailpit; follow its link.

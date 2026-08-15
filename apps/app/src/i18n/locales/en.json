@@ -33,7 +33,8 @@
     "invalid": "This verification link is invalid or has expired.",
     "banner": "Your email address is not verified yet — check your inbox.",
     "resend": "Resend email",
-    "resent": "Verification email sent."
+    "resent": "Verification email sent.",
+    "tileTitle": "Email not verified"
   },
   "resetPassword": {
     "forgotLink": "Forgot password?",
