@@ -25,7 +25,9 @@ export async function register(
 
 /** Open the sidebar user menu (the avatar button) and click Log out. */
 export async function logout(page: Page): Promise<void> {
-  await page.locator('[data-sidebar="footer"] button').first().click();
+  // The footer also holds tile action buttons (e.g. "Resend email"); the
+  // user menu trigger is the footer's only SidebarMenuButton.
+  await page.locator('[data-sidebar="footer"] [data-sidebar="menu-button"]').click();
   await page.getByRole("menuitem", { name: /log out|se déconnecter/i }).click();
   await page.waitForURL("**/login");
 }
