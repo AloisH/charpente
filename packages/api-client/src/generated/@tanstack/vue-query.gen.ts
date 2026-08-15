@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/vue-query';
 
 import { client } from '../client.gen';
-import { completeUpload, createUpload, deleteAccount, downloadUpload, exportAccount, forgotPassword, ingestEvent, listAuditLog, listUploads, listUsers, login, logout, me, type Options, register, resendVerification, resetPassword, setUserRole, verifyEmail } from '../sdk.gen';
-import type { CompleteUploadData, CompleteUploadResponse, CreateUploadData, CreateUploadResponse2, DeleteAccountData, DeleteAccountResponse, DownloadUploadData, DownloadUploadResponse2, ExportAccountData, ExportAccountResponse, ForgotPasswordData, ForgotPasswordResponse, IngestEventData, ListAuditLogData, ListAuditLogResponse, ListUploadsData, ListUploadsResponse, ListUsersData, ListUsersResponse, LoginData, LoginResponse, LogoutData, LogoutResponse, MeData, MeResponse, RegisterData, RegisterResponse, ResendVerificationData, ResendVerificationResponse, ResetPasswordData, ResetPasswordResponse, SetUserRoleData, SetUserRoleResponse, VerifyEmailData, VerifyEmailResponse } from '../types.gen';
+import { completeUpload, createUpload, deleteAccount, downloadUpload, exportAccount, forgotPassword, impersonateUser, ingestEvent, listAuditLog, listUploads, listUsers, login, logout, me, type Options, register, resendVerification, resetPassword, setUserRole, stopImpersonation, verifyEmail } from '../sdk.gen';
+import type { CompleteUploadData, CompleteUploadResponse, CreateUploadData, CreateUploadResponse2, DeleteAccountData, DeleteAccountResponse, DownloadUploadData, DownloadUploadResponse2, ExportAccountData, ExportAccountResponse, ForgotPasswordData, ForgotPasswordResponse, ImpersonateUserData, ImpersonateUserResponse, IngestEventData, ListAuditLogData, ListAuditLogResponse, ListUploadsData, ListUploadsResponse, ListUsersData, ListUsersResponse, LoginData, LoginResponse, LogoutData, LogoutResponse, MeData, MeResponse, RegisterData, RegisterResponse, ResendVerificationData, ResendVerificationResponse, ResetPasswordData, ResetPasswordResponse, SetUserRoleData, SetUserRoleResponse, StopImpersonationData, StopImpersonationResponse, VerifyEmailData, VerifyEmailResponse } from '../types.gen';
 
 /**
  * Erase the account (GDPR art. 17). Deletes the user row; uploads cascade.
@@ -200,6 +200,24 @@ export const listUsersInfiniteOptions = (options?: Options<ListUsersData>) => {
 };
 
 /**
+ * Log this session in as another user, remembering the admin for the return
+ * trip (`POST /auth/stop-impersonation`). Audited in `audit_log`.
+ */
+export const impersonateUserMutation = (options?: Partial<Options<ImpersonateUserData>>): UseMutationOptions<ImpersonateUserResponse, DefaultError, Options<ImpersonateUserData>> => {
+    const mutationOptions: UseMutationOptions<ImpersonateUserResponse, DefaultError, Options<ImpersonateUserData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await impersonateUser({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
  * Change a user's role (admin only). Recorded in the audit log.
  */
 export const setUserRoleMutation = (options?: Partial<Options<SetUserRoleData>>): UseMutationOptions<SetUserRoleResponse, DefaultError, Options<SetUserRoleData>> => {
@@ -333,6 +351,23 @@ export const resetPasswordMutation = (options?: Partial<Options<ResetPasswordDat
     const mutationOptions: UseMutationOptions<ResetPasswordResponse, DefaultError, Options<ResetPasswordData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await resetPassword({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Return an impersonating session to the real admin. Audited.
+ */
+export const stopImpersonationMutation = (options?: Partial<Options<StopImpersonationData>>): UseMutationOptions<StopImpersonationResponse, DefaultError, Options<StopImpersonationData>> => {
+    const mutationOptions: UseMutationOptions<StopImpersonationResponse, DefaultError, Options<StopImpersonationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await stopImpersonation({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

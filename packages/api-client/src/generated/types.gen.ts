@@ -109,6 +109,12 @@ export type PageUserDto = {
         email: string;
         email_verified: boolean;
         id: string;
+        /**
+         * True when this session is an admin impersonating the user. Only
+         * meaningful on session-scoped responses (`/me`, impersonation) — always
+         * false in admin listings.
+         */
+        impersonating: boolean;
         role: RoleDto;
     }>;
     /**
@@ -171,6 +177,12 @@ export type UserDto = {
     email: string;
     email_verified: boolean;
     id: string;
+    /**
+     * True when this session is an admin impersonating the user. Only
+     * meaningful on session-scoped responses (`/me`, impersonation) — always
+     * false in admin listings.
+     */
+    impersonating: boolean;
     role: RoleDto;
 };
 
@@ -276,6 +288,46 @@ export type ListUsersResponses = {
 };
 
 export type ListUsersResponse = ListUsersResponses[keyof ListUsersResponses];
+
+export type ImpersonateUserData = {
+    body?: never;
+    path: {
+        /**
+         * User to impersonate
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/admin/users/{id}/impersonate';
+};
+
+export type ImpersonateUserErrors = {
+    /**
+     * Not authenticated
+     */
+    401: unknown;
+    /**
+     * Not an admin
+     */
+    403: unknown;
+    /**
+     * No such user
+     */
+    404: unknown;
+    /**
+     * Already impersonating, or targeting yourself
+     */
+    409: unknown;
+};
+
+export type ImpersonateUserResponses = {
+    /**
+     * Session now belongs to the target user
+     */
+    200: UserDto;
+};
+
+export type ImpersonateUserResponse = ImpersonateUserResponses[keyof ImpersonateUserResponses];
 
 export type SetUserRoleData = {
     body: SetRoleRequest;
@@ -468,6 +520,33 @@ export type ResetPasswordResponses = {
 };
 
 export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];
+
+export type StopImpersonationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/stop-impersonation';
+};
+
+export type StopImpersonationErrors = {
+    /**
+     * Not authenticated
+     */
+    401: unknown;
+    /**
+     * This session is not impersonating anyone
+     */
+    404: unknown;
+};
+
+export type StopImpersonationResponses = {
+    /**
+     * Back to the admin account
+     */
+    200: UserDto;
+};
+
+export type StopImpersonationResponse = StopImpersonationResponses[keyof StopImpersonationResponses];
 
 export type VerifyEmailData = {
     body: VerifyEmailRequest;

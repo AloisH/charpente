@@ -84,7 +84,8 @@
     "role": "Rôle",
     "makeAdmin": "Passer admin",
     "makeUser": "Passer utilisateur",
-    "roleUpdated": "Rôle mis à jour"
+    "roleUpdated": "Rôle mis à jour",
+    "impersonate": "Incarner"
   },
   "errors": {
     "validation_failed": "Vérifiez les champs en surbrillance",
@@ -116,5 +117,10 @@
     "session": "Session",
     "quickActions": "Actions rapides",
     "goUpload": "Envoyer un fichier"
+  },
+  "impersonation": {
+    "banner": "Vous incarnez {name} ({email}) — les actions sont effectuées en tant que cet utilisateur.",
+    "stop": "Arrêter l'incarnation",
+    "stopped": "Retour à votre compte admin."
   }
 }

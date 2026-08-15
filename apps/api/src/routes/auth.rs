@@ -27,6 +27,7 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(resend_verification))
         .routes(routes!(forgot_password))
         .routes(routes!(reset_password))
+        .routes(routes!(stop_impersonation))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
@@ -43,6 +44,10 @@ pub struct UserDto {
     pub display_name: String,
     pub role: RoleDto,
     pub email_verified: bool,
+    /// True when this session is an admin impersonating the user. Only
+    /// meaningful on session-scoped responses (`/me`, impersonation) — always
+    /// false in admin listings.
+    pub impersonating: bool,
     pub created_at: DateTime<Utc>,
 }
 
@@ -57,6 +62,7 @@ impl From<User> for UserDto {
                 crate::auth::Role::User => RoleDto::User,
             },
             email_verified: user.email_verified_at.is_some(),
+            impersonating: false,
             created_at: user.created_at,
         }
     }
@@ -337,6 +343,13 @@ pub async fn login(
         .await
         .map_err(|e| AppError::Internal(anyhow::anyhow!("session login failed: {e}")))?;
 
+    // A fresh login is never an impersonation, whatever the session held.
+    auth_session
+        .session
+        .remove::<Uuid>(crate::auth::IMPERSONATOR_SESSION_KEY)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session write failed: {e}")))?;
+
     if let Some(axum::Extension(ctx)) = ctx {
         ctx.set("user_id", user.id.to_string());
     }
@@ -369,6 +382,67 @@ pub async fn logout(mut auth_session: AuthSession) -> AppResult<StatusCode> {
         (status = 401, description = "Not authenticated"),
     )
 )]
-pub async fn me(CurrentUser(user): CurrentUser) -> Json<UserDto> {
-    Json(user.into())
+pub async fn me(
+    auth_session: AuthSession,
+    CurrentUser(user): CurrentUser,
+) -> AppResult<Json<UserDto>> {
+    let impersonator: Option<Uuid> = auth_session
+        .session
+        .get(crate::auth::IMPERSONATOR_SESSION_KEY)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session read failed: {e}")))?;
+    let mut dto = UserDto::from(user);
+    dto.impersonating = impersonator.is_some();
+    Ok(Json(dto))
+}
+
+/// Return an impersonating session to the real admin. Audited.
+#[utoipa::path(
+    post,
+    path = "/stop-impersonation",
+    tag = "auth",
+    responses(
+        (status = 200, description = "Back to the admin account", body = UserDto),
+        (status = 401, description = "Not authenticated"),
+        (status = 404, description = "This session is not impersonating anyone"),
+    )
+)]
+pub async fn stop_impersonation(
+    State(state): State<AppState>,
+    mut auth_session: AuthSession,
+    CurrentUser(user): CurrentUser,
+) -> AppResult<Json<UserDto>> {
+    let admin_id: Option<Uuid> = auth_session
+        .session
+        .get(crate::auth::IMPERSONATOR_SESSION_KEY)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session read failed: {e}")))?;
+    let admin_id = admin_id.ok_or(AppError::NotFound)?;
+
+    let admin = axum_login::AuthnBackend::get_user(&auth_session.backend, &admin_id)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("admin fetch failed: {e}")))?
+        .ok_or(AppError::NotFound)?;
+
+    auth_session
+        .session
+        .remove::<Uuid>(crate::auth::IMPERSONATOR_SESSION_KEY)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session write failed: {e}")))?;
+    auth_session
+        .login(&admin)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session login failed: {e}")))?;
+
+    sqlx::query!(
+        r#"INSERT INTO audit_log (id, actor_id, action, subject, detail)
+           VALUES ($1, $2, 'user.impersonate_stop', $3, '{}')"#,
+        Uuid::now_v7(),
+        admin.id,
+        user.id.to_string()
+    )
+    .execute(&state.pool)
+    .await?;
+
+    Ok(Json(admin.into()))
 }

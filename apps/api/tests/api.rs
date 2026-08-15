@@ -742,3 +742,153 @@ async fn forgot_password_never_reveals_accounts(pool: PgPool) {
     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
     assert_eq!(mailer.sent.lock().unwrap().len(), 0);
 }
+
+// ── Impersonation ────────────────────────────────────────────────
+
+#[sqlx::test]
+async fn impersonation_flow(pool: PgPool) {
+    let router = app(pool.clone()).await;
+
+    let (_, target) = register(&router, "cible@example.com").await;
+    let target_id = target["id"].as_str().unwrap().to_owned();
+
+    let (admin_cookie, admin) = register(&router, "chef@example.com").await;
+    let admin_id: uuid::Uuid = serde_json::from_value(admin["id"].clone()).unwrap();
+    sqlx::query!("UPDATE users SET role = 'admin' WHERE id = $1", admin_id)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    // Impersonate: the response body is the target, flagged.
+    let imp = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            &format!("/api/v1/admin/users/{target_id}/impersonate"),
+            Some(&admin_cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(imp.status(), StatusCode::OK);
+    let body = body_json(imp).await;
+    assert_eq!(body["email"], json!("cible@example.com"));
+    assert_eq!(body["impersonating"], json!(true));
+
+    // Same cookie now acts as the target — and /me says so.
+    let me = router
+        .clone()
+        .oneshot(req("GET", "/api/v1/auth/me", Some(&admin_cookie), None))
+        .await
+        .unwrap();
+    let me_body = body_json(me).await;
+    assert_eq!(me_body["email"], json!("cible@example.com"));
+    assert_eq!(me_body["impersonating"], json!(true));
+
+    // Admin powers are gone while impersonating (the target is a plain user),
+    // and nesting is refused before that anyway…
+    let nested = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            &format!("/api/v1/admin/users/{target_id}/impersonate"),
+            Some(&admin_cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(nested.status(), StatusCode::FORBIDDEN);
+
+    // The start was audited.
+    let audited = sqlx::query_scalar!(
+        "SELECT count(*) FROM audit_log WHERE action = 'user.impersonate' AND actor_id = $1",
+        admin_id
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(audited, Some(1));
+
+    // Stop: back to the admin, key cleared, audited.
+    let stop = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/stop-impersonation",
+            Some(&admin_cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(stop.status(), StatusCode::OK);
+    assert_eq!(body_json(stop).await["email"], json!("chef@example.com"));
+
+    let me_after = router
+        .clone()
+        .oneshot(req("GET", "/api/v1/auth/me", Some(&admin_cookie), None))
+        .await
+        .unwrap();
+    let me_after_body = body_json(me_after).await;
+    assert_eq!(me_after_body["email"], json!("chef@example.com"));
+    assert_eq!(me_after_body["impersonating"], json!(false));
+
+    let stop_audited = sqlx::query_scalar!(
+        "SELECT count(*) FROM audit_log WHERE action = 'user.impersonate_stop' AND actor_id = $1",
+        admin_id
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(stop_audited, Some(1));
+
+    // Stopping again: nothing to stop.
+    let idle = router
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/stop-impersonation",
+            Some(&admin_cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(idle.status(), StatusCode::NOT_FOUND);
+}
+
+#[sqlx::test]
+async fn impersonation_is_admin_only_and_never_self(pool: PgPool) {
+    let router = app(pool.clone()).await;
+
+    let (user_cookie, user) = register(&router, "simple@example.com").await;
+    let user_id = user["id"].as_str().unwrap().to_owned();
+
+    // A plain user cannot impersonate anyone.
+    let forbidden = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            &format!("/api/v1/admin/users/{user_id}/impersonate"),
+            Some(&user_cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(forbidden.status(), StatusCode::FORBIDDEN);
+
+    // An admin cannot impersonate themselves.
+    let (admin_cookie, admin) = register(&router, "moi@example.com").await;
+    let admin_uuid: uuid::Uuid = serde_json::from_value(admin["id"].clone()).unwrap();
+    sqlx::query!("UPDATE users SET role = 'admin' WHERE id = $1", admin_uuid)
+        .execute(&pool)
+        .await
+        .unwrap();
+    let same = router
+        .oneshot(req(
+            "POST",
+            &format!("/api/v1/admin/users/{admin_uuid}/impersonate"),
+            Some(&admin_cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(same.status(), StatusCode::CONFLICT);
+}

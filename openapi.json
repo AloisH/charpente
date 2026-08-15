@@ -144,6 +144,51 @@
         }
       }
     },
+    "/api/v1/admin/users/{id}/impersonate": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Log this session in as another user, remembering the admin for the return\ntrip (`POST /auth/stop-impersonation`). Audited in `audit_log`.",
+        "operationId": "impersonate_user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User to impersonate",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session now belongs to the target user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "403": {
+            "description": "Not an admin"
+          },
+          "404": {
+            "description": "No such user"
+          },
+          "409": {
+            "description": "Already impersonating, or targeting yourself"
+          }
+        }
+      }
+    },
     "/api/v1/admin/users/{id}/role": {
       "patch": {
         "tags": [
@@ -377,6 +422,33 @@
           },
           "422": {
             "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/stop-impersonation": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Return an impersonating session to the real admin. Audited.",
+        "operationId": "stop_impersonation",
+        "responses": {
+          "200": {
+            "description": "Back to the admin account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "This session is not impersonating anyone"
           }
         }
       }
@@ -897,6 +969,7 @@
                 "display_name",
                 "role",
                 "email_verified",
+                "impersonating",
                 "created_at"
               ],
               "properties": {
@@ -916,6 +989,10 @@
                 "id": {
                   "type": "string",
                   "format": "uuid"
+                },
+                "impersonating": {
+                  "type": "boolean",
+                  "description": "True when this session is an admin impersonating the user. Only\nmeaningful on session-scoped responses (`/me`, impersonation) — always\nfalse in admin listings."
                 },
                 "role": {
                   "$ref": "#/components/schemas/RoleDto"
@@ -1091,6 +1168,7 @@
           "display_name",
           "role",
           "email_verified",
+          "impersonating",
           "created_at"
         ],
         "properties": {
@@ -1110,6 +1188,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "impersonating": {
+            "type": "boolean",
+            "description": "True when this session is an admin impersonating the user. Only\nmeaningful on session-scoped responses (`/me`, impersonation) — always\nfalse in admin listings."
           },
           "role": {
             "$ref": "#/components/schemas/RoleDto"

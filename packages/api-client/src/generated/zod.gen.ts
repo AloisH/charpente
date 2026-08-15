@@ -98,6 +98,7 @@ export const zPageUserDto = z.object({
         email: z.string(),
         email_verified: z.boolean(),
         id: z.uuid(),
+        impersonating: z.boolean(),
         role: zRoleDto
     })),
     next_cursor: z.uuid().nullish()
@@ -142,6 +143,7 @@ export const zUserDto = z.object({
     email: z.string(),
     email_verified: z.boolean(),
     id: z.uuid(),
+    impersonating: z.boolean(),
     role: zRoleDto
 });
 
@@ -174,6 +176,15 @@ export const zListUsersQuery = z.object({
 });
 
 export const zListUsersResponse = zPageUserDto;
+
+export const zImpersonateUserPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Session now belongs to the target user
+ */
+export const zImpersonateUserResponse = zUserDto;
 
 export const zSetUserRoleBody = zSetRoleRequest;
 
@@ -222,6 +233,11 @@ export const zResetPasswordBody = zResetPasswordRequest;
  * Password changed
  */
 export const zResetPasswordResponse = z.void();
+
+/**
+ * Back to the admin account
+ */
+export const zStopImpersonationResponse = zUserDto;
 
 export const zVerifyEmailBody = zVerifyEmailRequest;
 

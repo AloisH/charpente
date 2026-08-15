@@ -23,6 +23,7 @@ function mountWithUser(role: UserDto["role"] | null) {
       display_name: "T",
       role,
       email_verified: true,
+      impersonating: false,
       created_at: new Date().toISOString(),
     };
     queryClient.setQueryData(meQueryKey(), user);

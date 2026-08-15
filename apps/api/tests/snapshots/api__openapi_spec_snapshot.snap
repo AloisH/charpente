@@ -317,6 +317,10 @@ expression: json
                   "format": "uuid",
                   "type": "string"
                 },
+                "impersonating": {
+                  "description": "True when this session is an admin impersonating the user. Only\nmeaningful on session-scoped responses (`/me`, impersonation) — always\nfalse in admin listings.",
+                  "type": "boolean"
+                },
                 "role": {
                   "$ref": "#/components/schemas/RoleDto"
                 }
@@ -327,6 +331,7 @@ expression: json
                 "display_name",
                 "role",
                 "email_verified",
+                "impersonating",
                 "created_at"
               ],
               "type": "object"
@@ -517,6 +522,10 @@ expression: json
             "format": "uuid",
             "type": "string"
           },
+          "impersonating": {
+            "description": "True when this session is an admin impersonating the user. Only\nmeaningful on session-scoped responses (`/me`, impersonation) — always\nfalse in admin listings.",
+            "type": "boolean"
+          },
           "role": {
             "$ref": "#/components/schemas/RoleDto"
           }
@@ -527,6 +536,7 @@ expression: json
           "display_name",
           "role",
           "email_verified",
+          "impersonating",
           "created_at"
         ],
         "type": "object"
@@ -685,6 +695,51 @@ expression: json
           }
         },
         "summary": "List all users (admin only), newest first, cursor-paginated.",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/impersonate": {
+      "post": {
+        "operationId": "impersonate_user",
+        "parameters": [
+          {
+            "description": "User to impersonate",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            },
+            "description": "Session now belongs to the target user"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "403": {
+            "description": "Not an admin"
+          },
+          "404": {
+            "description": "No such user"
+          },
+          "409": {
+            "description": "Already impersonating, or targeting yourself"
+          }
+        },
+        "summary": "Log this session in as another user, remembering the admin for the return\ntrip (`POST /auth/stop-impersonation`). Audited in `audit_log`.",
         "tags": [
           "admin"
         ]
@@ -922,6 +977,33 @@ expression: json
           }
         },
         "summary": "Set a new password with a token from the reset email.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/stop-impersonation": {
+      "post": {
+        "operationId": "stop_impersonation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            },
+            "description": "Back to the admin account"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "This session is not impersonating anyone"
+          }
+        },
+        "summary": "Return an impersonating session to the real admin. Audited.",
         "tags": [
           "auth"
         ]

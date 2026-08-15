@@ -84,7 +84,8 @@
     "role": "Role",
     "makeAdmin": "Make admin",
     "makeUser": "Make user",
-    "roleUpdated": "Role updated"
+    "roleUpdated": "Role updated",
+    "impersonate": "Impersonate"
   },
   "errors": {
     "validation_failed": "Please check the highlighted fields",
@@ -116,5 +117,10 @@
     "session": "Session",
     "quickActions": "Quick actions",
     "goUpload": "Upload a file"
+  },
+  "impersonation": {
+    "banner": "Impersonating {name} ({email}) — actions are performed as this user.",
+    "stop": "Stop impersonating",
+    "stopped": "Back to your admin account."
   }
 }

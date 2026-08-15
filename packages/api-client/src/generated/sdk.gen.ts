@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CompleteUploadData, CompleteUploadErrors, CompleteUploadResponses, CreateUploadData, CreateUploadErrors, CreateUploadResponses, DeleteAccountData, DeleteAccountErrors, DeleteAccountResponses, DownloadUploadData, DownloadUploadErrors, DownloadUploadResponses, ExportAccountData, ExportAccountErrors, ExportAccountResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, IngestEventData, IngestEventResponses, ListAuditLogData, ListAuditLogErrors, ListAuditLogResponses, ListUploadsData, ListUploadsErrors, ListUploadsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, MeData, MeErrors, MeResponses, RegisterData, RegisterErrors, RegisterResponses, ResendVerificationData, ResendVerificationErrors, ResendVerificationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SetUserRoleData, SetUserRoleErrors, SetUserRoleResponses, VerifyEmailData, VerifyEmailErrors, VerifyEmailResponses } from './types.gen';
+import type { CompleteUploadData, CompleteUploadErrors, CompleteUploadResponses, CreateUploadData, CreateUploadErrors, CreateUploadResponses, DeleteAccountData, DeleteAccountErrors, DeleteAccountResponses, DownloadUploadData, DownloadUploadErrors, DownloadUploadResponses, ExportAccountData, ExportAccountErrors, ExportAccountResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, ImpersonateUserData, ImpersonateUserErrors, ImpersonateUserResponses, IngestEventData, IngestEventResponses, ListAuditLogData, ListAuditLogErrors, ListAuditLogResponses, ListUploadsData, ListUploadsErrors, ListUploadsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, MeData, MeErrors, MeResponses, RegisterData, RegisterErrors, RegisterResponses, ResendVerificationData, ResendVerificationErrors, ResendVerificationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SetUserRoleData, SetUserRoleErrors, SetUserRoleResponses, StopImpersonationData, StopImpersonationErrors, StopImpersonationResponses, VerifyEmailData, VerifyEmailErrors, VerifyEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -37,6 +37,12 @@ export const listAuditLog = <ThrowOnError extends boolean = false>(options?: Opt
  * List all users (admin only), newest first, cursor-paginated.
  */
 export const listUsers = <ThrowOnError extends boolean = false>(options?: Options<ListUsersData, ThrowOnError>): RequestResult<ListUsersResponses, ListUsersErrors, ThrowOnError> => (options?.client ?? client).get<ListUsersResponses, ListUsersErrors, ThrowOnError>({ url: '/api/v1/admin/users', ...options });
+
+/**
+ * Log this session in as another user, remembering the admin for the return
+ * trip (`POST /auth/stop-impersonation`). Audited in `audit_log`.
+ */
+export const impersonateUser = <ThrowOnError extends boolean = false>(options: Options<ImpersonateUserData, ThrowOnError>): RequestResult<ImpersonateUserResponses, ImpersonateUserErrors, ThrowOnError> => (options.client ?? client).post<ImpersonateUserResponses, ImpersonateUserErrors, ThrowOnError>({ url: '/api/v1/admin/users/{id}/impersonate', ...options });
 
 /**
  * Change a user's role (admin only). Recorded in the audit log.
@@ -119,6 +125,11 @@ export const resetPassword = <ThrowOnError extends boolean = false>(options: Opt
         ...options.headers
     }
 });
+
+/**
+ * Return an impersonating session to the real admin. Audited.
+ */
+export const stopImpersonation = <ThrowOnError extends boolean = false>(options?: Options<StopImpersonationData, ThrowOnError>): RequestResult<StopImpersonationResponses, StopImpersonationErrors, ThrowOnError> => (options?.client ?? client).post<StopImpersonationResponses, StopImpersonationErrors, ThrowOnError>({ url: '/api/v1/auth/stop-impersonation', ...options });
 
 /**
  * Confirm an email address with a token from the verification email.

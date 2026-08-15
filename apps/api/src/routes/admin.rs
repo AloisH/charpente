@@ -11,7 +11,10 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 use uuid::Uuid;
 
-use crate::auth::{PERM_MANAGE_USERS, PERM_VIEW_AUDIT_LOG, RequirePermission};
+use crate::auth::{
+    AuthSession, IMPERSONATOR_SESSION_KEY, PERM_MANAGE_USERS, PERM_VIEW_AUDIT_LOG,
+    RequirePermission,
+};
 use crate::error::{AppError, AppResult};
 use crate::pagination::{CursorParams, Page};
 use crate::routes::auth::{RoleDto, UserDto};
@@ -21,6 +24,7 @@ pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(list_users))
         .routes(routes!(set_user_role))
+        .routes(routes!(impersonate_user))
         .routes(routes!(list_audit_log))
 }
 
@@ -50,9 +54,77 @@ impl TryFrom<UserListRow> for UserDto {
             display_name: row.display_name,
             role,
             email_verified: row.email_verified_at.is_some(),
+            impersonating: false,
             created_at: row.created_at,
         })
     }
+}
+
+/// Log this session in as another user, remembering the admin for the return
+/// trip (`POST /auth/stop-impersonation`). Audited in `audit_log`.
+#[utoipa::path(
+    post,
+    path = "/users/{id}/impersonate",
+    tag = "admin",
+    params(("id" = Uuid, Path, description = "User to impersonate")),
+    responses(
+        (status = 200, description = "Session now belongs to the target user", body = UserDto),
+        (status = 401, description = "Not authenticated"),
+        (status = 403, description = "Not an admin"),
+        (status = 404, description = "No such user"),
+        (status = 409, description = "Already impersonating, or targeting yourself"),
+    )
+)]
+pub async fn impersonate_user(
+    State(state): State<AppState>,
+    RequirePermission(admin): RequirePermission<PERM_MANAGE_USERS>,
+    mut auth_session: AuthSession,
+    Path(id): Path<Uuid>,
+) -> AppResult<Json<UserDto>> {
+    if id == admin.id {
+        return Err(AppError::Conflict("cannot impersonate yourself".to_owned()));
+    }
+    let already: Option<Uuid> = auth_session
+        .session
+        .get(IMPERSONATOR_SESSION_KEY)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session read failed: {e}")))?;
+    if already.is_some() {
+        // Nesting would overwrite the way back to the real admin.
+        return Err(AppError::Conflict(
+            "already impersonating a user".to_owned(),
+        ));
+    }
+
+    let target = axum_login::AuthnBackend::get_user(&auth_session.backend, &id)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("user fetch failed: {e}")))?
+        .ok_or(AppError::NotFound)?;
+
+    auth_session
+        .session
+        .insert(IMPERSONATOR_SESSION_KEY, admin.id)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session write failed: {e}")))?;
+    auth_session
+        .login(&target)
+        .await
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("session login failed: {e}")))?;
+
+    sqlx::query!(
+        r#"INSERT INTO audit_log (id, actor_id, action, subject, detail)
+           VALUES ($1, $2, 'user.impersonate', $3, $4)"#,
+        Uuid::now_v7(),
+        admin.id,
+        id.to_string(),
+        serde_json::json!({ "target_email": target.email })
+    )
+    .execute(&state.pool)
+    .await?;
+
+    let mut dto = UserDto::from(target);
+    dto.impersonating = true;
+    Ok(Json(dto))
 }
 
 /// List all users (admin only), newest first, cursor-paginated.

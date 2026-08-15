@@ -211,6 +211,11 @@ impl AuthzBackend for Backend {
 
 pub type AuthSession = axum_login::AuthSession<Backend>;
 
+/// Session key remembering the real admin while the session is logged in as
+/// someone else. Presence of the key == impersonation in progress; it survives
+/// the user switch because `login()` only cycles unauthenticated sessions.
+pub const IMPERSONATOR_SESSION_KEY: &str = "impersonator_id";
+
 /// Extractor: the authenticated user, or a `problem+json` 401.
 /// Also stamps `user_id`/`role` onto the request's wide event.
 pub struct CurrentUser(pub User);
