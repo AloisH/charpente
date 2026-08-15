@@ -35,7 +35,11 @@
     "theme": "Thème",
     "themeLight": "Clair",
     "themeDark": "Sombre",
-    "themeSystem": "Système"
+    "themeSystem": "Système",
+    "devTools": "Outils de dev",
+    "devMailpit": "Mailpit (e-mails)",
+    "devRustfs": "Console RustFS",
+    "devAdminer": "Adminer (base de données)"
   },
   "dashboard": {
     "title": "Tableau de bord",

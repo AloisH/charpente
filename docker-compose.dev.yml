@@ -26,6 +26,7 @@ services:
       RUSTFS_SECRET_KEY: rustfsadmin
     ports:
       - "9000:9000"
+      - "9001:9001" # web console
     volumes:
       - rustfsdata:/data
     healthcheck:

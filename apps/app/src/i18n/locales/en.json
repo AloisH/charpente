@@ -35,7 +35,11 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "devTools": "Dev tools",
+    "devMailpit": "Mailpit (emails)",
+    "devRustfs": "RustFS console",
+    "devAdminer": "Adminer (database)"
   },
   "dashboard": {
     "title": "Dashboard",

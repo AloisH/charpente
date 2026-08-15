@@ -3,11 +3,15 @@
 // sheet on mobile, state persisted in a cookie) + a slim header with the
 // trigger. Nav items are gated by permissions via can().
 import {
+  Database,
+  ExternalLink,
   Files,
   FlaskConical,
+  HardDrive,
   Languages,
   LayoutDashboard,
   LogOut,
+  Mail,
   Monitor,
   Moon,
   Search,
@@ -162,6 +166,33 @@ const navItems = computed<NavItem[]>(() =>
 );
 
 const isActive = (to: string): boolean => route.path.startsWith(to);
+
+// Local infra UIs from docker-compose.dev.yml — dev only, they don't exist in
+// prod. Opened in a new tab: iframing them would fight CSP and their own
+// frame protections.
+const devTools = [
+  { href: "http://localhost:8025", label: () => t("nav.devMailpit"), icon: Mail },
+  {
+    href: "http://localhost:9001/rustfs/console/",
+    label: () => t("nav.devRustfs"),
+    icon: HardDrive,
+  },
+  { href: "http://localhost:8081", label: () => t("nav.devAdminer"), icon: Database },
+];
+
+if (isDev) {
+  registerCommands({
+    id: "dev-tools",
+    label: () => t("nav.devTools"),
+    order: 90,
+    actions: devTools.map((tool) => ({
+      id: tool.href,
+      label: tool.label,
+      icon: tool.icon,
+      perform: () => window.open(tool.href, "_blank", "noopener"),
+    })),
+  });
+}
 </script>
 
 <template>
@@ -212,6 +243,23 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
                     <component :is="item.icon" />
                     <span>{{ item.label }}</span>
                   </RouterLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup v-if="isDev">
+          <SidebarGroupLabel>{{ t("nav.devTools") }}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="tool in devTools" :key="tool.href">
+                <SidebarMenuButton as-child :tooltip="tool.label()">
+                  <a :href="tool.href" target="_blank" rel="noopener">
+                    <component :is="tool.icon" />
+                    <span class="flex-1">{{ tool.label() }}</span>
+                    <ExternalLink class="!size-3 text-muted-foreground" />
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
