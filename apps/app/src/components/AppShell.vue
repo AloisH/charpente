@@ -221,12 +221,6 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
             class="relative flex size-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm"
           >
             <FlaskConical class="size-4" />
-            <span class="absolute -top-0.5 -right-0.5 flex size-2">
-              <span
-                class="absolute inline-flex size-full animate-ping rounded-full bg-amber-400 opacity-75"
-              />
-              <span class="relative inline-flex size-2 rounded-full bg-amber-500" />
-            </span>
           </span>
           <div class="relative grid leading-tight group-data-[collapsible=icon]:hidden">
             <span
