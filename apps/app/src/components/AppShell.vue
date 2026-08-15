@@ -46,8 +46,9 @@ const router = useRouter();
 const { user, can, logout } = useAuth();
 const ui = useUiStore();
 
-// Example shortcut: Mod+Shift+L toggles the theme.
+// App-wide shortcuts (hints rendered via formatShortcut).
 useShortcut("Mod+Shift+L", () => ui.toggleTheme());
+useShortcut("Mod+Shift+E", () => ui.switchLocale());
 
 // Global palette commands. Pages add their own groups the same way.
 registerCommands({
@@ -105,6 +106,7 @@ registerCommands({
       id: "language",
       label: () => (ui.locale === "fr" ? "English" : "Français"),
       icon: Languages,
+      shortcut: formatShortcut("Mod+Shift+E"),
       perform: () => ui.switchLocale(),
     },
   ],
