@@ -24,6 +24,8 @@ export default defineConfig({
       "@": path.resolve(dirname, "src"),
     },
   },
+  // VITE_* vars come from the repo-root .env (single env file for the stack).
+  envDir: path.resolve(dirname, "../.."),
   server: {
     port: 5173,
     // Same-origin API in dev too: cookies flow without CORS involvement.

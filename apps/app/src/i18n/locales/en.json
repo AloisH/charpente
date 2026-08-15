@@ -19,7 +19,10 @@
     "registerTitle": "Create your account",
     "noAccount": "No account yet?",
     "haveAccount": "Already have an account?",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "devLogin": "Dev only",
+    "devLoginAdmin": "Log in as admin",
+    "devLoginUser": "Log in as user"
   },
   "nav": {
     "dashboard": "Dashboard",

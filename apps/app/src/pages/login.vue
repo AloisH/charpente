@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { defineAsyncComponent } from "vue";
 import { useForm } from "vee-validate";
 import { toast } from "vue-sonner";
 import { useI18n } from "vue-i18n";
@@ -41,6 +42,13 @@ const login = useMutation({
 const onSubmit = handleSubmit((values) => {
   login.mutate({ body: values });
 });
+
+// Dev-only quick-login buttons. The ternary is folded at build time, so in
+// production the component (and its credentials) is never even emitted as a
+// chunk — verified by the bundle scan in CI-facing docs.
+const DevQuickLogin = import.meta.env.DEV
+  ? defineAsyncComponent(() => import("@/components/DevQuickLogin.vue"))
+  : null;
 </script>
 
 <template>
@@ -83,6 +91,8 @@ const onSubmit = handleSubmit((values) => {
           {{ t("auth.noAccount") }}
           <RouterLink to="/register" class="underline">{{ t("auth.register") }}</RouterLink>
         </p>
+
+        <component :is="DevQuickLogin" v-if="DevQuickLogin !== null" />
       </CardContent>
     </Card>
   </div>

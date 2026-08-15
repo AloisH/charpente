@@ -19,7 +19,10 @@
     "registerTitle": "Créez votre compte",
     "noAccount": "Pas encore de compte ?",
     "haveAccount": "Déjà un compte ?",
-    "invalidCredentials": "E-mail ou mot de passe invalide"
+    "invalidCredentials": "E-mail ou mot de passe invalide",
+    "devLogin": "Dev uniquement",
+    "devLoginAdmin": "Connexion admin",
+    "devLoginUser": "Connexion utilisateur"
   },
   "nav": {
     "dashboard": "Tableau de bord",
