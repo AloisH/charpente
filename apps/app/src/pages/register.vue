@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { applyFieldErrors, problemMessage } from "@/lib/api-errors";
+import { lazyThenEager } from "@/lib/forms";
 import { toTypedSchema } from "@/lib/zod-schema";
 
 const { t } = useI18n();
@@ -22,9 +23,9 @@ const queryClient = useQueryClient();
 const { handleSubmit, defineField, errors, setErrors } = useForm({
   validationSchema: toTypedSchema(zRegisterRequest),
 });
-const [email, emailProps] = defineField("email");
-const [password, passwordProps] = defineField("password");
-const [displayName, displayNameProps] = defineField("display_name");
+const [email, emailProps] = defineField("email", lazyThenEager);
+const [password, passwordProps] = defineField("password", lazyThenEager);
+const [displayName, displayNameProps] = defineField("display_name", lazyThenEager);
 
 const register = useMutation({
   ...registerMutation(),
