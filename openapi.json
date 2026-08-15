@@ -12,7 +12,9 @@
   "paths": {
     "/api/v1/account": {
       "delete": {
-        "tags": ["account"],
+        "tags": [
+          "account"
+        ],
         "summary": "Erase the account (GDPR art. 17). Deletes the user row; uploads cascade.",
         "operationId": "delete_account",
         "responses": {
@@ -27,7 +29,9 @@
     },
     "/api/v1/account/export": {
       "get": {
-        "tags": ["account"],
+        "tags": [
+          "account"
+        ],
         "summary": "Export the account's data as JSON (GDPR art. 20).",
         "operationId": "export_account",
         "responses": {
@@ -49,7 +53,9 @@
     },
     "/api/v1/admin/audit-log": {
       "get": {
-        "tags": ["admin"],
+        "tags": [
+          "admin"
+        ],
         "summary": "The audit trail of role-guarded actions, newest first.",
         "operationId": "list_audit_log",
         "parameters": [
@@ -92,7 +98,9 @@
     },
     "/api/v1/admin/users": {
       "get": {
-        "tags": ["admin"],
+        "tags": [
+          "admin"
+        ],
         "summary": "List all users (admin only), newest first, cursor-paginated.",
         "operationId": "list_users",
         "parameters": [
@@ -138,7 +146,9 @@
     },
     "/api/v1/admin/users/{id}/role": {
       "patch": {
-        "tags": ["admin"],
+        "tags": [
+          "admin"
+        ],
         "summary": "Change a user's role (admin only). Recorded in the audit log.",
         "operationId": "set_user_role",
         "parameters": [
@@ -185,7 +195,9 @@
     },
     "/api/v1/auth/login": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Log in with email + password.",
         "operationId": "login",
         "requestBody": {
@@ -217,7 +229,9 @@
     },
     "/api/v1/auth/logout": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "End the current session.",
         "operationId": "logout",
         "responses": {
@@ -229,7 +243,9 @@
     },
     "/api/v1/auth/me": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "The currently authenticated user.",
         "operationId": "me",
         "responses": {
@@ -251,7 +267,9 @@
     },
     "/api/v1/auth/register": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Create an account and open a session.",
         "operationId": "register",
         "requestBody": {
@@ -286,7 +304,9 @@
     },
     "/api/v1/events": {
       "post": {
-        "tags": ["events"],
+        "tags": [
+          "events"
+        ],
         "summary": "Ingest one client-side wide event (fire-and-forget; rate-limited).",
         "operationId": "ingest_event",
         "requestBody": {
@@ -308,7 +328,9 @@
     },
     "/api/v1/uploads": {
       "get": {
-        "tags": ["uploads"],
+        "tags": [
+          "uploads"
+        ],
         "summary": "The caller's uploads, newest first, cursor-paginated.",
         "operationId": "list_uploads",
         "parameters": [
@@ -349,7 +371,9 @@
         }
       },
       "post": {
-        "tags": ["uploads"],
+        "tags": [
+          "uploads"
+        ],
         "summary": "Declare an upload: validates type + size, records a pending row, returns a\npresigned PUT URL.",
         "operationId": "create_upload",
         "requestBody": {
@@ -384,7 +408,9 @@
     },
     "/api/v1/uploads/{id}/complete": {
       "post": {
-        "tags": ["uploads"],
+        "tags": [
+          "uploads"
+        ],
         "summary": "Confirm the browser finished its PUT; verifies the object actually exists.",
         "operationId": "complete_upload",
         "parameters": [
@@ -421,7 +447,9 @@
     },
     "/api/v1/uploads/{id}/download": {
       "get": {
-        "tags": ["uploads"],
+        "tags": [
+          "uploads"
+        ],
         "summary": "A short-lived download URL for a completed upload.",
         "operationId": "download_upload",
         "parameters": [
@@ -458,7 +486,10 @@
     "schemas": {
       "AccountExport": {
         "type": "object",
-        "required": ["user", "uploads"],
+        "required": [
+          "user",
+          "uploads"
+        ],
         "properties": {
           "uploads": {
             "type": "array",
@@ -473,13 +504,21 @@
       },
       "AuditLogEntryDto": {
         "type": "object",
-        "required": ["id", "action", "detail", "created_at"],
+        "required": [
+          "id",
+          "action",
+          "detail",
+          "created_at"
+        ],
         "properties": {
           "action": {
             "type": "string"
           },
           "actor_id": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uuid"
           },
           "created_at": {
@@ -492,13 +531,18 @@
             "format": "uuid"
           },
           "subject": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
       "ClientEvent": {
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
           "fields": {
             "description": "Arbitrary structured context."
@@ -508,14 +552,21 @@
             "description": "Event name, e.g. \"mutation_failed\"."
           },
           "request_id": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Request id returned by the failing API call, if any."
           }
         }
       },
       "CreateUploadRequest": {
         "type": "object",
-        "required": ["filename", "content_type", "size_bytes"],
+        "required": [
+          "filename",
+          "content_type",
+          "size_bytes"
+        ],
         "properties": {
           "content_type": {
             "type": "string"
@@ -531,7 +582,10 @@
       },
       "CreateUploadResponse": {
         "type": "object",
-        "required": ["upload", "put_url"],
+        "required": [
+          "upload",
+          "put_url"
+        ],
         "properties": {
           "put_url": {
             "type": "string",
@@ -544,7 +598,9 @@
       },
       "DownloadUploadResponse": {
         "type": "object",
-        "required": ["get_url"],
+        "required": [
+          "get_url"
+        ],
         "properties": {
           "get_url": {
             "type": "string",
@@ -569,7 +625,10 @@
       },
       "LoginRequest": {
         "type": "object",
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "properties": {
           "email": {
             "type": "string"
@@ -581,7 +640,10 @@
       },
       "Page_AuditLogEntryDto": {
         "type": "object",
-        "required": ["items", "has_more"],
+        "required": [
+          "items",
+          "has_more"
+        ],
         "properties": {
           "has_more": {
             "type": "boolean"
@@ -590,13 +652,21 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["id", "action", "detail", "created_at"],
+              "required": [
+                "id",
+                "action",
+                "detail",
+                "created_at"
+              ],
               "properties": {
                 "action": {
                   "type": "string"
                 },
                 "actor_id": {
-                  "type": ["string", "null"],
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "format": "uuid"
                 },
                 "created_at": {
@@ -609,13 +679,19 @@
                   "format": "uuid"
                 },
                 "subject": {
-                  "type": ["string", "null"]
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 }
               }
             }
           },
           "next_cursor": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uuid",
             "description": "Pass as `cursor` to fetch the next page; absent on the last page."
           }
@@ -623,7 +699,10 @@
       },
       "Page_UploadDto": {
         "type": "object",
-        "required": ["items", "has_more"],
+        "required": [
+          "items",
+          "has_more"
+        ],
         "properties": {
           "has_more": {
             "type": "boolean"
@@ -632,7 +711,14 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["id", "filename", "content_type", "size_bytes", "state", "created_at"],
+              "required": [
+                "id",
+                "filename",
+                "content_type",
+                "size_bytes",
+                "state",
+                "created_at"
+              ],
               "properties": {
                 "content_type": {
                   "type": "string"
@@ -659,7 +745,10 @@
             }
           },
           "next_cursor": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uuid",
             "description": "Pass as `cursor` to fetch the next page; absent on the last page."
           }
@@ -667,7 +756,10 @@
       },
       "Page_UserDto": {
         "type": "object",
-        "required": ["items", "has_more"],
+        "required": [
+          "items",
+          "has_more"
+        ],
         "properties": {
           "has_more": {
             "type": "boolean"
@@ -676,7 +768,13 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["id", "email", "display_name", "role", "created_at"],
+              "required": [
+                "id",
+                "email",
+                "display_name",
+                "role",
+                "created_at"
+              ],
               "properties": {
                 "created_at": {
                   "type": "string",
@@ -699,7 +797,10 @@
             }
           },
           "next_cursor": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uuid",
             "description": "Pass as `cursor` to fetch the next page; absent on the last page."
           }
@@ -708,16 +809,27 @@
       "Problem": {
         "type": "object",
         "description": "RFC 9457 problem details, extended with `code` and field-level `errors`.",
-        "required": ["type", "title", "status", "code"],
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code"
+        ],
         "properties": {
           "code": {
             "$ref": "#/components/schemas/ErrorCode"
           },
           "detail": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "errors": {
-            "type": ["object", "null"],
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "Field-level validation messages, keyed by field name.",
             "additionalProperties": {
               "type": "array",
@@ -745,7 +857,11 @@
       },
       "RegisterRequest": {
         "type": "object",
-        "required": ["email", "password", "display_name"],
+        "required": [
+          "email",
+          "password",
+          "display_name"
+        ],
         "properties": {
           "display_name": {
             "type": "string"
@@ -760,11 +876,16 @@
       },
       "RoleDto": {
         "type": "string",
-        "enum": ["admin", "user"]
+        "enum": [
+          "admin",
+          "user"
+        ]
       },
       "SetRoleRequest": {
         "type": "object",
-        "required": ["role"],
+        "required": [
+          "role"
+        ],
         "properties": {
           "role": {
             "$ref": "#/components/schemas/RoleDto"
@@ -773,7 +894,14 @@
       },
       "UploadDto": {
         "type": "object",
-        "required": ["id", "filename", "content_type", "size_bytes", "state", "created_at"],
+        "required": [
+          "id",
+          "filename",
+          "content_type",
+          "size_bytes",
+          "state",
+          "created_at"
+        ],
         "properties": {
           "content_type": {
             "type": "string"
@@ -800,11 +928,20 @@
       },
       "UploadState": {
         "type": "string",
-        "enum": ["pending", "complete"]
+        "enum": [
+          "pending",
+          "complete"
+        ]
       },
       "UserDto": {
         "type": "object",
-        "required": ["id", "email", "display_name", "role", "created_at"],
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "role",
+          "created_at"
+        ],
         "properties": {
           "created_at": {
             "type": "string",

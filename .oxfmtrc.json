@@ -1,5 +1,6 @@
 {
   "ignorePatterns": [
+    "openapi.json",
     "**/dist/**",
     "**/.output/**",
     "**/.nuxt/**",

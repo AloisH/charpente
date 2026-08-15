@@ -2,7 +2,9 @@
 //! `dist/` is embedded in the binary — one artifact, no volume mounts. Without
 //! it (dev), Vite serves the frontend and unknown routes 404.
 
-use axum::http::{StatusCode, Uri, header};
+#[cfg(feature = "embed-spa")]
+use axum::http::header;
+use axum::http::{StatusCode, Uri};
 use axum::response::{IntoResponse, Response};
 
 use crate::error::AppError;
