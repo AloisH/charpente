@@ -11,6 +11,11 @@ pre-commit:
     rustfmt:
       glob: "*.rs"
       run: cargo fmt --all -- --check
+    # Millisecond tripwires for the generated-artifact drift CI fails on
+    # (stale .sqlx cache, openapi.json/client drift) — see the script header.
+    drift-guard:
+      glob: "*.{rs,sql}"
+      run: sh scripts/pre-commit-drift-guard.sh
     gitleaks:
       run: sh -c 'command -v gitleaks >/dev/null && gitleaks protect --staged --no-banner || true'
 
