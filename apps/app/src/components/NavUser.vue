@@ -3,7 +3,7 @@
 // actions (theme, language, logout). The avatar is generated locally from the
 // email — initials on a deterministic color — because the CSP allows no
 // third-party avatar services.
-import { ChevronsUpDown, Languages, LogOut, Moon, Sun } from "@lucide/vue";
+import { ChevronsUpDown, Languages, LogOut, Monitor, Moon, Sun } from "@lucide/vue";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -113,12 +113,15 @@ const avatarColor = computed(() => {
                 @update:model-value="ui.setTheme($event as Theme)"
               >
                 <DropdownMenuRadioItem value="light">
+                  <Sun class="mr-2 size-4" />
                   {{ t("nav.themeLight") }}
                 </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="dark">
+                  <Moon class="mr-2 size-4" />
                   {{ t("nav.themeDark") }}
                 </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="auto">
+                  <Monitor class="mr-2 size-4" />
                   {{ t("nav.themeSystem") }}
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
