@@ -20,7 +20,7 @@ find . \
     -name "*.json" -o -name "*.yml" -o -name "*.yaml" -o -name "*.md" -o \
     -name "*.sql" -o -name "*.css" -o -name "*.html" -o -name "*.mjs" -o \
     -name "*.sh" -o -name "justfile" -o -name "Caddyfile" -o -name "*.Dockerfile" -o \
-    -name ".env.example" -o -name "*.svg" \
+    -name ".env.example" -o -name "*.svg" -o -name "*.snap" \
   \) -print | while IFS= read -r file; do
     sed -i.bak \
       -e "s/AloisH\\/charpente/${owner}\\/${name}/g" \
