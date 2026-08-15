@@ -20,6 +20,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import CommandPalette from "@/components/CommandPalette.vue";
 import NavUser from "@/components/NavUser.vue";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
@@ -160,11 +161,13 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
           <SidebarMenuItem>
             <SidebarMenuButton as-child size="lg">
               <RouterLink to="/dashboard">
-                <span
-                  class="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary font-semibold text-sidebar-primary-foreground"
-                >
-                  c
-                </span>
+                <Avatar class="size-8 shrink-0 rounded-lg">
+                  <AvatarFallback
+                    class="rounded-lg bg-sidebar-primary font-semibold text-sidebar-primary-foreground"
+                  >
+                    c
+                  </AvatarFallback>
+                </Avatar>
                 <span class="truncate font-semibold">{{ t("common.appName") }}</span>
               </RouterLink>
             </SidebarMenuButton>
