@@ -6,9 +6,6 @@ on:
     - cron: "17 3 * * *"
   workflow_dispatch:
 
-env:
-  DATABASE_URL: postgres://charpente:charpente@localhost:5432/charpente
-
 jobs:
   deny:
     runs-on: ubuntu-latest
@@ -22,6 +19,11 @@ jobs:
   mutants:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    env:
+      # Macros compile from the committed .sqlx cache; #[sqlx::test] uses
+      # DATABASE_URL at runtime and applies migrations itself.
+      DATABASE_URL: postgres://charpente:charpente@localhost:5432/charpente
+      SQLX_OFFLINE: "1"
     services:
       postgres:
         image: postgres:17
@@ -42,6 +44,8 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-mutants
+      # --all-features enables embed-spa: RustEmbed needs the folder to exist.
+      - run: mkdir -p apps/app/dist
       - run: cargo mutants --workspace --timeout 120 -- --all-features
         continue-on-error: true
       - uses: actions/upload-artifact@v4
@@ -52,6 +56,10 @@ jobs:
 
   schemathesis:
     runs-on: ubuntu-latest
+    env:
+      # Compile offline; the API migrates its own DB at startup.
+      DATABASE_URL: postgres://charpente:charpente@localhost:5432/charpente
+      SQLX_OFFLINE: "1"
     services:
       postgres:
         image: postgres:17
