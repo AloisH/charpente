@@ -1,0 +1,71 @@
+[package]
+name = "api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[features]
+default = []
+# Serve the built SPA from assets embedded in the binary (prod image).
+embed-spa = ["dep:rust-embed", "dep:mime_guess"]
+# Test-only endpoints (db reset for e2e). Never enabled in release images.
+test-endpoints = []
+
+[dependencies]
+anyhow = "1"
+argon2 = { version = "0.5", features = ["std"] }
+async-trait = "0.1"
+aws-config = { version = "1", features = ["behavior-version-latest"] }
+aws-sdk-s3 = "1"
+axum = { version = "0.8", features = ["macros"] }
+axum-login = "0.18"
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+figment = { version = "0.10", features = ["env"] }
+mime_guess = { version = "2", optional = true }
+rust-embed = { version = "8", optional = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "postgres",
+    "uuid",
+    "chrono",
+    "migrate",
+    "macros",
+] }
+thiserror = "2"
+time = "0.3"
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.7", features = [
+    "trace",
+    "compression-full",
+    "cors",
+    "timeout",
+    "normalize-path",
+    "set-header",
+    "limit",
+] }
+tower-sessions = { version = "0.14", features = ["signed"] }
+tower-sessions-sqlx-store = { version = "0.15", features = ["postgres"] }
+tower_governor = "0.8"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+utoipa = { version = "5", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-axum = "0.2"
+utoipa-scalar = { version = "0.3", features = ["axum"] }
+uuid = { version = "1", features = ["v7", "serde"] }
+validator = { version = "0.21", features = ["derive"] }
+
+[dev-dependencies]
+http-body-util = "0.1"
+insta = { version = "1", features = ["json", "redactions"] }
+serde_urlencoded = "0.7"

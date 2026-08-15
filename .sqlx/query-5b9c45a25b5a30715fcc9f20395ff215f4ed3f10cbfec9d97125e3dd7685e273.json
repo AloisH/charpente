@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "TRUNCATE users, uploads, audit_log, password_reset_tokens, email_verification_tokens CASCADE",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "5b9c45a25b5a30715fcc9f20395ff215f4ed3f10cbfec9d97125e3dd7685e273"
+}

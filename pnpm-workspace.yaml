@@ -1,0 +1,5 @@
+packages:
+  - apps/app
+  - apps/site
+  - packages/*
+  - e2e

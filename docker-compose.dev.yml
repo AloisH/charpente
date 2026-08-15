@@ -1,0 +1,64 @@
+# Local development infrastructure only — the API, SPA and site run on your host.
+# Usage: just infra   (or: docker compose -f docker-compose.dev.yml up -d --wait)
+name: charpente-dev
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: charpente
+      POSTGRES_PASSWORD: charpente
+      POSTGRES_DB: charpente
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U charpente"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+    ports:
+      - "9000:9000"
+    volumes:
+      - rustfsdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/ || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  # Creates the dev bucket on first run, then exits.
+  rustfs-init:
+    image: minio/mc:latest
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set dev http://rustfs:9000 rustfsadmin rustfsadmin &&
+      mc mb --ignore-existing dev/charpente
+      "
+
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025" # web UI
+      - "1025:1025" # smtp
+
+volumes:
+  pgdata:
+  rustfsdata:

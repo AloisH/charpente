@@ -1,0 +1,14 @@
+{
+  "name": "@charpente/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "@tanstack/vue-query": ">=5",
+    "vue": ">=3.5",
+    "zod": ">=4"
+  }
+}

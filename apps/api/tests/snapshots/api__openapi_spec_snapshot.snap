@@ -1,0 +1,993 @@
+---
+source: apps/api/tests/api.rs
+expression: json
+---
+{
+  "components": {
+    "schemas": {
+      "AccountExport": {
+        "properties": {
+          "uploads": {
+            "items": {
+              "$ref": "#/components/schemas/UploadDto"
+            },
+            "type": "array"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
+          }
+        },
+        "required": [
+          "user",
+          "uploads"
+        ],
+        "type": "object"
+      },
+      "AuditLogEntryDto": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "detail": {},
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "detail",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "ClientEvent": {
+        "properties": {
+          "fields": {
+            "description": "Arbitrary structured context."
+          },
+          "name": {
+            "description": "Event name, e.g. \"mutation_failed\".",
+            "type": "string"
+          },
+          "request_id": {
+            "description": "Request id returned by the failing API call, if any.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "CreateUploadRequest": {
+        "properties": {
+          "content_type": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filename",
+          "content_type",
+          "size_bytes"
+        ],
+        "type": "object"
+      },
+      "CreateUploadResponse": {
+        "properties": {
+          "put_url": {
+            "description": "Presigned URL: PUT the file bytes here with the declared content type.",
+            "type": "string"
+          },
+          "upload": {
+            "$ref": "#/components/schemas/UploadDto"
+          }
+        },
+        "required": [
+          "upload",
+          "put_url"
+        ],
+        "type": "object"
+      },
+      "DownloadUploadResponse": {
+        "properties": {
+          "get_url": {
+            "description": "Presigned URL, valid for a few minutes.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "get_url"
+        ],
+        "type": "object"
+      },
+      "ErrorCode": {
+        "description": "Stable machine-readable error codes. Additions are fine; renames are a\nbreaking API change surfaced by the OpenAPI diff.",
+        "enum": [
+          "validation_failed",
+          "invalid_credentials",
+          "unauthorized",
+          "forbidden",
+          "not_found",
+          "conflict",
+          "payload_too_large",
+          "rate_limited",
+          "internal"
+        ],
+        "type": "string"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object"
+      },
+      "Page_AuditLogEntryDto": {
+        "properties": {
+          "has_more": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "actor_id": {
+                  "format": "uuid",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "created_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "detail": {},
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "subject": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "action",
+                "detail",
+                "created_at"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "description": "Pass as `cursor` to fetch the next page; absent on the last page.",
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "has_more"
+        ],
+        "type": "object"
+      },
+      "Page_UploadDto": {
+        "properties": {
+          "has_more": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "properties": {
+                "content_type": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "size_bytes": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "state": {
+                  "$ref": "#/components/schemas/UploadState"
+                }
+              },
+              "required": [
+                "id",
+                "filename",
+                "content_type",
+                "size_bytes",
+                "state",
+                "created_at"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "description": "Pass as `cursor` to fetch the next page; absent on the last page.",
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "has_more"
+        ],
+        "type": "object"
+      },
+      "Page_UserDto": {
+        "properties": {
+          "has_more": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "properties": {
+                "created_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "role": {
+                  "$ref": "#/components/schemas/RoleDto"
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "display_name",
+                "role",
+                "created_at"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "description": "Pass as `cursor` to fetch the next page; absent on the last page.",
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "has_more"
+        ],
+        "type": "object"
+      },
+      "Problem": {
+        "description": "RFC 9457 problem details, extended with `code` and field-level `errors`.",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Field-level validation messages, keyed by field name.",
+            "propertyNames": {
+              "type": "string"
+            },
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "status": {
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "description": "Always \"about:blank\"; the machine-readable discriminant is `code`.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code"
+        ],
+        "type": "object"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "RoleDto": {
+        "enum": [
+          "admin",
+          "user"
+        ],
+        "type": "string"
+      },
+      "SetRoleRequest": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/RoleDto"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "type": "object"
+      },
+      "UploadDto": {
+        "properties": {
+          "content_type": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "size_bytes": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/components/schemas/UploadState"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "content_type",
+          "size_bytes",
+          "state",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "UploadState": {
+        "enum": [
+          "pending",
+          "complete"
+        ],
+        "type": "string"
+      },
+      "UserDto": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleDto"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "role",
+          "created_at"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Backend API. Errors are RFC 9457 problem+json with a stable `code`.",
+    "license": {
+      "identifier": "MIT",
+      "name": "MIT"
+    },
+    "title": "charpente API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/account": {
+      "delete": {
+        "operationId": "delete_account",
+        "responses": {
+          "204": {
+            "description": "Account erased"
+          },
+          "401": {
+            "description": "Not authenticated"
+          }
+        },
+        "summary": "Erase the account (GDPR art. 17). Deletes the user row; uploads cascade.",
+        "tags": [
+          "account"
+        ]
+      }
+    },
+    "/api/v1/account/export": {
+      "get": {
+        "operationId": "export_account",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountExport"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": "Not authenticated"
+          }
+        },
+        "summary": "Export the account's data as JSON (GDPR art. 20).",
+        "tags": [
+          "account"
+        ]
+      }
+    },
+    "/api/v1/admin/audit-log": {
+      "get": {
+        "operationId": "list_audit_log",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Page size, 1..=100 (default 25).",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AuditLogEntryDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "description": "Missing permission"
+          }
+        },
+        "summary": "The audit trail of role-guarded actions, newest first.",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "operationId": "list_users",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Page size, 1..=100 (default 25).",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_UserDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "403": {
+            "description": "Not an admin"
+          }
+        },
+        "summary": "List all users (admin only), newest first, cursor-paginated.",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/role": {
+      "patch": {
+        "operationId": "set_user_role",
+        "parameters": [
+          {
+            "description": "User id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "description": "Not an admin"
+          },
+          "404": {
+            "description": "No such user"
+          }
+        },
+        "summary": "Change a user's role (admin only). Recorded in the audit log.",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            },
+            "description": "Logged in"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "summary": "Log in with email + password.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "responses": {
+          "204": {
+            "description": "Logged out"
+          }
+        },
+        "summary": "End the current session.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": "Not authenticated"
+          }
+        },
+        "summary": "The currently authenticated user.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            },
+            "description": "Account created and logged in"
+          },
+          "409": {
+            "description": "Email already registered"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        },
+        "summary": "Create an account and open a session.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/events": {
+      "post": {
+        "operationId": "ingest_event",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientEvent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          }
+        },
+        "summary": "Ingest one client-side wide event (fire-and-forget; rate-limited).",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/uploads": {
+      "get": {
+        "operationId": "list_uploads",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Page size, 1..=100 (default 25).",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_UploadDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": "Not authenticated"
+          }
+        },
+        "summary": "The caller's uploads, newest first, cursor-paginated.",
+        "tags": [
+          "uploads"
+        ]
+      },
+      "post": {
+        "operationId": "create_upload",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUploadResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        },
+        "summary": "Declare an upload: validates type + size, records a pending row, returns a\npresigned PUT URL.",
+        "tags": [
+          "uploads"
+        ]
+      }
+    },
+    "/api/v1/uploads/{id}/complete": {
+      "post": {
+        "operationId": "complete_upload",
+        "parameters": [
+          {
+            "description": "Upload id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No such pending upload"
+          },
+          "409": {
+            "description": "Object not found in storage"
+          }
+        },
+        "summary": "Confirm the browser finished its PUT; verifies the object actually exists.",
+        "tags": [
+          "uploads"
+        ]
+      }
+    },
+    "/api/v1/uploads/{id}/download": {
+      "get": {
+        "operationId": "download_upload",
+        "parameters": [
+          {
+            "description": "Upload id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadUploadResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No such completed upload"
+          }
+        },
+        "summary": "A short-lived download URL for a completed upload.",
+        "tags": [
+          "uploads"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "Registration and cookie-session authentication",
+      "name": "auth"
+    },
+    {
+      "description": "Account lifecycle: erasure and export",
+      "name": "account"
+    },
+    {
+      "description": "Admin-only user management",
+      "name": "admin"
+    },
+    {
+      "description": "Presigned direct-to-storage uploads",
+      "name": "uploads"
+    },
+    {
+      "description": "Client-side wide-event ingestion",
+      "name": "events"
+    }
+  ]
+}

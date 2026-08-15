@@ -1,0 +1,20 @@
+pre-commit:
+  parallel: true
+  commands:
+    oxfmt:
+      glob: "*.{ts,tsx,vue,js,mjs,json,css}"
+      run: pnpm exec oxfmt {staged_files}
+      stage_fixed: true
+    oxlint:
+      glob: "*.{ts,tsx,vue,js,mjs}"
+      run: pnpm exec oxlint {staged_files}
+    rustfmt:
+      glob: "*.rs"
+      run: cargo fmt --all -- --check
+    gitleaks:
+      run: sh -c 'command -v gitleaks >/dev/null && gitleaks protect --staged --no-banner || true'
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}

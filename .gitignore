@@ -1,0 +1,30 @@
+# Rust
+target/
+
+# Node
+node_modules/
+dist/
+# rust-embed needs apps/app/dist to exist even in clean builds
+!apps/app/dist/
+apps/app/dist/*
+!apps/app/dist/.gitkeep
+.output/
+.nuxt/
+.nitro/
+coverage/
+*.tsbuildinfo
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Tooling
+.turbo/
+.vite/
+playwright-report/
+test-results/
+
+# OS / editor
+.DS_Store
+*.swp

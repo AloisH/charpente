@@ -1,0 +1,10 @@
+{
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/.output/**",
+    "**/.nuxt/**",
+    "**/coverage/**",
+    "packages/api-client/src/generated/**",
+    "pnpm-lock.yaml"
+  ]
+}
