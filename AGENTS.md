@@ -32,6 +32,10 @@ just migrate-new <name>
 - New API routes: annotate with `#[utoipa::path]`, register via
   `routes!(handler)` in the module's `router()`, keep them under `/api/v1`.
   List endpoints use `CursorParams` → `Page<T>`.
+- Request DTOs: every `#[validate(...)]` rule needs a matching
+  `#[schema(...)]` attribute (format = Email, min_length, maximum, …) —
+  that is what puts the constraint into the OpenAPI spec and therefore into
+  the generated client-side Zod validation.
 - User-facing strings in the SPA/site go through i18n — add both `fr` and `en`
   keys (`apps/{app,site}/…/locales/*.json` or `i18n/locales/`).
 - Server state lives in TanStack Query via the generated helpers; Pinia is for
