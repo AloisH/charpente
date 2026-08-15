@@ -76,5 +76,16 @@
     "tooLong": "At most {max} characters",
     "tooSmall": "Must be at least {min}",
     "tooBig": "Must be at most {max}"
+  },
+  "command": {
+    "title": "Command palette",
+    "search": "Search…",
+    "placeholder": "Type a command or search…",
+    "empty": "No results",
+    "navigation": "Navigation",
+    "preferences": "Preferences",
+    "session": "Session",
+    "quickActions": "Quick actions",
+    "goUpload": "Upload a file"
   }
 }

@@ -35,13 +35,13 @@ export const useUiStore = defineStore("ui", () => {
     colorMode.value = colorMode.value === "dark" ? "light" : "dark";
   }
 
-  function setLocale(value: Locale): void {
-    applyLocale(value);
-  }
-
   function switchLocale(): void {
     setLocale(locale.value === "fr" ? "en" : "fr");
   }
 
   return { colorMode, theme, locale, setTheme, toggleTheme, setLocale, switchLocale };
 });
+
+function setLocale(value: Locale): void {
+  applyLocale(value);
+}

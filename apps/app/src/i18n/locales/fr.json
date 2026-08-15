@@ -76,5 +76,16 @@
     "tooLong": "Au plus {max} caractères",
     "tooSmall": "Doit être au moins {min}",
     "tooBig": "Doit être au plus {max}"
+  },
+  "command": {
+    "title": "Palette de commandes",
+    "search": "Rechercher…",
+    "placeholder": "Tapez une commande ou recherchez…",
+    "empty": "Aucun résultat",
+    "navigation": "Navigation",
+    "preferences": "Préférences",
+    "session": "Session",
+    "quickActions": "Actions rapides",
+    "goUpload": "Envoyer un fichier"
   }
 }

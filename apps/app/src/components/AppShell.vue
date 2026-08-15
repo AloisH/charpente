@@ -2,11 +2,22 @@
 // Layout for authenticated pages: shadcn-vue sidebar (collapsible to icons,
 // sheet on mobile, state persisted in a cookie) + a slim header with the
 // trigger. Nav items are gated by permissions via can().
-import { Files, LayoutDashboard, Users } from "@lucide/vue";
+import {
+  Files,
+  Languages,
+  LayoutDashboard,
+  LogOut,
+  Monitor,
+  Moon,
+  Search,
+  Sun,
+  Users,
+} from "@lucide/vue";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
+import CommandPalette from "@/components/CommandPalette.vue";
 import NavUser from "@/components/NavUser.vue";
 import {
   Sidebar,
@@ -26,15 +37,92 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth, type Permission } from "@/composables/useAuth";
 import { useShortcut } from "@/composables/useShortcut";
+import { openPalette, registerCommands } from "@/lib/command-registry";
 import { useUiStore } from "@/stores/ui";
 
 const { t } = useI18n();
 const route = useRoute();
-const { user, can } = useAuth();
+const router = useRouter();
+const { user, can, logout } = useAuth();
 const ui = useUiStore();
 
 // Example shortcut: Mod+Shift+L toggles the theme.
 useShortcut("Mod+Shift+L", () => ui.toggleTheme());
+
+// Global palette commands. Pages add their own groups the same way.
+registerCommands({
+  id: "navigation",
+  label: () => t("command.navigation"),
+  order: 0,
+  actions: [
+    {
+      id: "dashboard",
+      label: () => t("nav.dashboard"),
+      icon: LayoutDashboard,
+      perform: () => router.push("/dashboard"),
+    },
+    {
+      id: "uploads",
+      label: () => t("nav.uploads"),
+      icon: Files,
+      perform: () => router.push("/uploads"),
+    },
+    {
+      id: "admin",
+      label: () => t("nav.admin"),
+      icon: Users,
+      when: () => can("manage-users"),
+      perform: () => router.push("/admin/users"),
+    },
+  ],
+});
+
+registerCommands({
+  id: "preferences",
+  label: () => t("command.preferences"),
+  order: 10,
+  actions: [
+    {
+      id: "theme-light",
+      label: () => `${t("nav.theme")} : ${t("nav.themeLight")}`,
+      icon: Sun,
+      perform: () => ui.setTheme("light"),
+    },
+    {
+      id: "theme-dark",
+      label: () => `${t("nav.theme")} : ${t("nav.themeDark")}`,
+      icon: Moon,
+      shortcut: "⌘⇧L",
+      perform: () => ui.setTheme("dark"),
+    },
+    {
+      id: "theme-system",
+      label: () => `${t("nav.theme")} : ${t("nav.themeSystem")}`,
+      icon: Monitor,
+      perform: () => ui.setTheme("auto"),
+    },
+    {
+      id: "language",
+      label: () => (ui.locale === "fr" ? "English" : "Français"),
+      icon: Languages,
+      perform: () => ui.switchLocale(),
+    },
+  ],
+});
+
+registerCommands({
+  id: "session",
+  label: () => t("command.session"),
+  order: 20,
+  actions: [
+    {
+      id: "logout",
+      label: () => t("auth.logout"),
+      icon: LogOut,
+      perform: () => logout.mutate({}),
+    },
+  ],
+});
 
 interface NavItem {
   to: string;
@@ -106,6 +194,19 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
     <SidebarInset>
       <header class="flex h-14 items-center gap-3 border-b border-border px-4">
         <SidebarTrigger />
+        <button
+          type="button"
+          class="inline-flex h-8 w-full max-w-xs items-center gap-2 rounded-md border border-input bg-background px-3 text-sm text-muted-foreground transition-colors hover:bg-accent"
+          @click="openPalette()"
+        >
+          <Search class="size-4" />
+          <span class="flex-1 text-left">{{ t("command.search") }}</span>
+          <kbd
+            class="pointer-events-none rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium"
+          >
+            ⌘K
+          </kbd>
+        </button>
         <div class="ml-auto text-sm text-muted-foreground">
           {{ user?.display_name }}
         </div>
@@ -114,5 +215,6 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
         <slot />
       </main>
     </SidebarInset>
+    <CommandPalette />
   </SidebarProvider>
 </template>
