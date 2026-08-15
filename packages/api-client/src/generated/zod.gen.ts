@@ -19,8 +19,8 @@ export const zClientEvent = z.object({
 
 export const zCreateUploadRequest = z.object({
     content_type: z.string(),
-    filename: z.string(),
-    size_bytes: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+    filename: z.string().min(1).max(255),
+    size_bytes: z.coerce.bigint().gte(BigInt(1)).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
 });
 
 export const zDownloadUploadResponse = z.object({
@@ -44,8 +44,8 @@ export const zErrorCode = z.enum([
 ]);
 
 export const zLoginRequest = z.object({
-    email: z.string(),
-    password: z.string()
+    email: z.email(),
+    password: z.string().min(1)
 });
 
 export const zPageAuditLogEntryDto = z.object({
@@ -74,9 +74,9 @@ export const zProblem = z.object({
 });
 
 export const zRegisterRequest = z.object({
-    display_name: z.string(),
-    email: z.string(),
-    password: z.string()
+    display_name: z.string().min(1).max(100),
+    email: z.email(),
+    password: z.string().min(8).max(128)
 });
 
 export const zRoleDto = z.enum(['admin', 'user']);

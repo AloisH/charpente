@@ -572,11 +572,14 @@
             "type": "string"
           },
           "filename": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
           },
           "size_bytes": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "minimum": 1
           }
         }
       },
@@ -631,10 +634,12 @@
         ],
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       },
@@ -864,13 +869,18 @@
         ],
         "properties": {
           "display_name": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8
           }
         }
       },

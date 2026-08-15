@@ -56,19 +56,26 @@ impl From<User> for UserDto {
     }
 }
 
+// The `schema` attributes land in the OpenAPI spec, so the generated Zod
+// client enforces the same rules in the browser as `validate` does here.
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct RegisterRequest {
     #[validate(email(message = "must be a valid email address"))]
+    #[schema(format = Email)]
     pub email: String,
     #[validate(length(min = 8, max = 128, message = "must be 8 to 128 characters"))]
+    #[schema(min_length = 8, max_length = 128)]
     pub password: String,
     #[validate(length(min = 1, max = 100, message = "must be 1 to 100 characters"))]
+    #[schema(min_length = 1, max_length = 100)]
     pub display_name: String,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct LoginRequest {
+    #[schema(format = Email)]
     pub email: String,
+    #[schema(min_length = 1)]
     pub password: String,
 }
 

@@ -85,9 +85,11 @@ impl From<UploadRow> for UploadDto {
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateUploadRequest {
     #[validate(length(min = 1, max = 255, message = "must be 1 to 255 characters"))]
+    #[schema(min_length = 1, max_length = 255)]
     pub filename: String,
     pub content_type: String,
     #[validate(range(min = 1, message = "must be at least 1 byte"))]
+    #[schema(minimum = 1)]
     pub size_bytes: i64,
 }
 

@@ -87,10 +87,13 @@ expression: json
             "type": "string"
           },
           "filename": {
+            "maxLength": 255,
+            "minLength": 1,
             "type": "string"
           },
           "size_bytes": {
             "format": "int64",
+            "minimum": 1,
             "type": "integer"
           }
         },
@@ -147,9 +150,11 @@ expression: json
       "LoginRequest": {
         "properties": {
           "email": {
+            "format": "email",
             "type": "string"
           },
           "password": {
+            "minLength": 1,
             "type": "string"
           }
         },
@@ -379,12 +384,17 @@ expression: json
       "RegisterRequest": {
         "properties": {
           "display_name": {
+            "maxLength": 100,
+            "minLength": 1,
             "type": "string"
           },
           "email": {
+            "format": "email",
             "type": "string"
           },
           "password": {
+            "maxLength": 128,
+            "minLength": 8,
             "type": "string"
           }
         },
