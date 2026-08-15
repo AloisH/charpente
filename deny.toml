@@ -5,6 +5,16 @@ all-features = true
 [advisories]
 db-path = "~/.cargo/advisory-db"
 yanked = "warn"
+ignore = [
+  # utoipa-axum → paste: upstream archived, no fix exists. Re-check whenever
+  # utoipa-axum releases (they'll have to move off it eventually).
+  "RUSTSEC-2024-0436",
+  # rustls-webpki 0.101 via the aws-sdk v1 legacy rustls 0.21 chain — the SDK
+  # pins it, `cargo update` can't move it. Exploitable only after CA
+  # misissuance. Drop when the AWS SDK defaults to the hyper1/rustls 0.23
+  # client.
+  "RUSTSEC-2026-0098",
+]
 
 [licenses]
 allow = [

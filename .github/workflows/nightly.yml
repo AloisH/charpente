@@ -94,9 +94,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Scan latest published images
+      # Registry references must be lowercase; the repo owner may not be.
+      - name: Resolve the image reference
+        id: image
+        run: echo "ref=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/charpente-app:latest" >> "$GITHUB_OUTPUT"
+      # No release tag has been pushed until the first `v*` tag — skip cleanly
+      # instead of failing on a nonexistent image.
+      - name: Check the image exists
+        id: exists
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          if docker manifest inspect "${{ steps.image.outputs.ref }}" >/dev/null 2>&1; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::${{ steps.image.outputs.ref }} is not published yet — skipping scan"
+            echo "yes=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Scan the latest published image
+        if: steps.exists.outputs.yes == 'true'
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/charpente-app:latest
+          image-ref: ${{ steps.image.outputs.ref }}
           severity: HIGH,CRITICAL
           exit-code: "0"
