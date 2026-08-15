@@ -1,23 +1,25 @@
 // Keyboard shortcuts, wrapped in one composable on purpose: TanStack Hotkeys
 // is alpha, so an upstream API break is a one-file fix here instead of a
 // codebase-wide one.
+import type { RegisterableHotkey } from "@tanstack/hotkeys";
 import { useHotkey } from "@tanstack/vue-hotkeys";
 
+export type Shortcut = RegisterableHotkey;
+
 export interface ShortcutOptions {
-  /** Fire even when an input/textarea has focus (default false). */
+  /** Fire even when an input/textarea has focus (default: library heuristic). */
   inInputs?: boolean;
 }
 
 /**
- * `useShortcut("mod+k", open)` — "mod" is ⌘ on macOS, Ctrl elsewhere.
+ * `useShortcut("Mod+K", open)` — "Mod" is ⌘ on macOS, Ctrl elsewhere.
  * Automatically unbinds when the component unmounts.
  */
 export function useShortcut(
-  combo: string,
+  combo: Shortcut,
   handler: () => void,
   options: ShortcutOptions = {},
 ): void {
-  useHotkey(combo, () => handler(), {
-    enableOnFormTags: options.inInputs ?? false,
-  });
+  const hotkeyOptions = options.inInputs === undefined ? {} : { ignoreInputs: !options.inInputs };
+  useHotkey(combo, () => handler(), hotkeyOptions);
 }

@@ -1,7 +1,9 @@
 import type { Router } from "vue-router";
 
+import { meOptions } from "@charpente/api-client";
+import type { UserDto } from "@charpente/api-client";
+
 import { queryClient } from "@/lib/query";
-import { currentUserQueryOptions } from "@/composables/useAuth";
 
 // Route-level auth. Pages opt in via definePage:
 //   definePage({ meta: { requiresAuth: true } })
@@ -10,8 +12,8 @@ export function installAuthGuard(router: Router): void {
   router.beforeEach(async (to) => {
     if (to.meta.requiresAuth !== true) return true;
 
-    const user = await queryClient
-      .ensureQueryData(currentUserQueryOptions())
+    const user: UserDto | null = await queryClient
+      .ensureQueryData({ ...meOptions(), retry: false, staleTime: 60_000 })
       .catch(() => null);
 
     if (user === null) {

@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@charpente/tokens/tokens.css";
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+}

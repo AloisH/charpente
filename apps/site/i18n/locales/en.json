@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "main": "Main navigation",
+    "app": "Open the app",
+    "legal": "Legal notice"
+  },
+  "home": {
+    "title": "Home",
+    "description": "charpente — a solid frame for your next product.",
+    "headline": "A solid frame for your next product",
+    "subheadline": "Rust backend, Vue frontend, shared types end to end. Replace this copy with your value proposition.",
+    "cta": "Get started"
+  },
+  "legal": {
+    "title": "Legal notice",
+    "placeholder": "Publisher, hosting provider, contact — fill in before going live.",
+    "privacyTitle": "Privacy",
+    "privacyPlaceholder": "This site only uses strictly necessary cookies (session). No analytics, no consent banner required."
+  }
+}

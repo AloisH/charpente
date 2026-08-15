@@ -2,10 +2,6 @@
   "name": "charpente",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.15.0",
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
     "lint": "oxlint --deny-warnings",
     "fmt": "oxfmt .",
@@ -24,7 +20,14 @@
     "oxlint": "^1.78.0",
     "typescript": "~5.9.3"
   },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.15.0",
   "pnpm": {
-    "onlyBuiltDependencies": ["lefthook", "esbuild"]
+    "onlyBuiltDependencies": [
+      "lefthook",
+      "esbuild"
+    ]
   }
 }

@@ -5,13 +5,9 @@ import { defineConfig } from "@hey-api/openapi-ts";
 // CI re-runs both steps and fails on any diff (generated-check).
 export default defineConfig({
   input: "openapi.json",
-  output: {
-    path: "packages/api-client/src/generated",
-    format: false,
-    lint: false,
-  },
+  output: "packages/api-client/src/generated",
   plugins: [
-    { name: "@hey-api/client-fetch", runtimeConfigPath: "../runtime.ts" },
+    { name: "@hey-api/client-fetch", runtimeConfigPath: "./packages/api-client/src/runtime.ts" },
     "@tanstack/vue-query",
     "zod",
   ],

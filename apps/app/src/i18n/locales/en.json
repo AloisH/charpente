@@ -1,0 +1,63 @@
+{
+  "common": {
+    "appName": "charpente",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "error": "Something went wrong",
+    "retry": "Retry"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Display name",
+    "login": "Log in",
+    "register": "Create account",
+    "logout": "Log out",
+    "loginTitle": "Welcome back",
+    "registerTitle": "Create your account",
+    "noAccount": "No account yet?",
+    "haveAccount": "Already have an account?",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "uploads": "Files",
+    "admin": "Admin",
+    "toggleTheme": "Toggle theme",
+    "language": "Language"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {name}",
+    "hint": "This is your starting point — replace it with your product."
+  },
+  "uploads": {
+    "title": "Files",
+    "drop": "Drop a file here or click to select",
+    "empty": "No files yet",
+    "uploading": "Uploading…",
+    "uploaded": "Upload complete",
+    "download": "Download",
+    "failed": "Upload failed"
+  },
+  "admin": {
+    "usersTitle": "Users",
+    "role": "Role",
+    "makeAdmin": "Make admin",
+    "makeUser": "Make user",
+    "roleUpdated": "Role updated"
+  },
+  "errors": {
+    "validation_failed": "Please check the highlighted fields",
+    "invalid_credentials": "Invalid email or password",
+    "unauthorized": "Please log in",
+    "forbidden": "You don't have access to this",
+    "not_found": "Not found",
+    "conflict": "This already exists",
+    "payload_too_large": "Too large",
+    "rate_limited": "Too many attempts — try again in a minute",
+    "internal": "Something went wrong on our side"
+  }
+}

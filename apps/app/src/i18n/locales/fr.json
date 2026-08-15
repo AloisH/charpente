@@ -1,0 +1,63 @@
+{
+  "common": {
+    "appName": "charpente",
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "error": "Une erreur est survenue",
+    "retry": "Réessayer"
+  },
+  "auth": {
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "displayName": "Nom affiché",
+    "login": "Se connecter",
+    "register": "Créer un compte",
+    "logout": "Se déconnecter",
+    "loginTitle": "Bon retour",
+    "registerTitle": "Créez votre compte",
+    "noAccount": "Pas encore de compte ?",
+    "haveAccount": "Déjà un compte ?",
+    "invalidCredentials": "E-mail ou mot de passe invalide"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "uploads": "Fichiers",
+    "admin": "Admin",
+    "toggleTheme": "Changer de thème",
+    "language": "Langue"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "welcome": "Bienvenue, {name}",
+    "hint": "Ceci est votre point de départ — remplacez-le par votre produit."
+  },
+  "uploads": {
+    "title": "Fichiers",
+    "drop": "Déposez un fichier ici ou cliquez pour choisir",
+    "empty": "Aucun fichier pour l'instant",
+    "uploading": "Envoi en cours…",
+    "uploaded": "Envoi terminé",
+    "download": "Télécharger",
+    "failed": "Échec de l'envoi"
+  },
+  "admin": {
+    "usersTitle": "Utilisateurs",
+    "role": "Rôle",
+    "makeAdmin": "Passer admin",
+    "makeUser": "Passer utilisateur",
+    "roleUpdated": "Rôle mis à jour"
+  },
+  "errors": {
+    "validation_failed": "Vérifiez les champs en surbrillance",
+    "invalid_credentials": "E-mail ou mot de passe invalide",
+    "unauthorized": "Veuillez vous connecter",
+    "forbidden": "Vous n'avez pas accès à ceci",
+    "not_found": "Introuvable",
+    "conflict": "Existe déjà",
+    "payload_too_large": "Trop volumineux",
+    "rate_limited": "Trop de tentatives — réessayez dans une minute",
+    "internal": "Une erreur est survenue de notre côté"
+  }
+}

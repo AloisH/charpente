@@ -9,7 +9,6 @@ import { i18n } from "@/i18n";
 import { installAuthGuard } from "@/lib/auth-guard";
 import { queryClient } from "@/lib/query";
 
-import "@/lib/client";
 import "@/assets/main.css";
 
 const router = createRouter({

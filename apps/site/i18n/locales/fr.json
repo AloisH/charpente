@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "main": "Navigation principale",
+    "app": "Ouvrir l'application",
+    "legal": "Mentions légales"
+  },
+  "home": {
+    "title": "Accueil",
+    "description": "charpente — un socle solide pour votre prochain produit.",
+    "headline": "Un socle solide pour votre prochain produit",
+    "subheadline": "Backend Rust, frontend Vue, types partagés de bout en bout. Remplacez ce texte par votre proposition de valeur.",
+    "cta": "Commencer"
+  },
+  "legal": {
+    "title": "Mentions légales",
+    "placeholder": "Éditeur, hébergeur, contact — à compléter avant mise en ligne.",
+    "privacyTitle": "Confidentialité",
+    "privacyPlaceholder": "Ce site n'utilise que des cookies strictement nécessaires (session). Pas d'analytics, pas de bannière de consentement requise."
+  }
+}
