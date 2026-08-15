@@ -43,6 +43,10 @@ export const zErrorCode = z.enum([
     'internal'
 ]);
 
+export const zForgotPasswordRequest = z.object({
+    email: z.email()
+});
+
 export const zLoginRequest = z.object({
     email: z.email(),
     password: z.string().min(1)
@@ -77,6 +81,11 @@ export const zRegisterRequest = z.object({
     display_name: z.string().min(1).max(100),
     email: z.email(),
     password: z.string().min(8).max(128)
+});
+
+export const zResetPasswordRequest = z.object({
+    password: z.string().min(8).max(128),
+    token: z.string().min(1)
 });
 
 export const zRoleDto = z.enum(['admin', 'user']);
@@ -174,6 +183,13 @@ export const zSetUserRolePath = z.object({
 
 export const zSetUserRoleResponse = zUserDto;
 
+export const zForgotPasswordBody = zForgotPasswordRequest;
+
+/**
+ * If the account exists, a reset email was sent
+ */
+export const zForgotPasswordResponse = z.void();
+
 export const zLoginBody = zLoginRequest;
 
 /**
@@ -199,6 +215,13 @@ export const zRegisterResponse = zUserDto;
  * Verification email sent
  */
 export const zResendVerificationResponse = z.void();
+
+export const zResetPasswordBody = zResetPasswordRequest;
+
+/**
+ * Password changed
+ */
+export const zResetPasswordResponse = z.void();
 
 export const zVerifyEmailBody = zVerifyEmailRequest;
 

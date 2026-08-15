@@ -84,6 +84,11 @@ const DevQuickLogin = import.meta.env.DEV
             <p v-if="errors.password" class="text-sm text-destructive">
               {{ errors.password }}
             </p>
+            <p class="text-right text-sm">
+              <RouterLink to="/forgot-password" class="text-muted-foreground underline">
+                {{ t("resetPassword.forgotLink") }}
+              </RouterLink>
+            </p>
           </div>
           <Button type="submit" class="w-full" :disabled="login.isPending.value">
             <Loader2 v-if="login.isPending.value" class="size-4 animate-spin" />

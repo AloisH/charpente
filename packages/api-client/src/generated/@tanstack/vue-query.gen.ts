@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/vue-query';
 
 import { client } from '../client.gen';
-import { completeUpload, createUpload, deleteAccount, downloadUpload, exportAccount, ingestEvent, listAuditLog, listUploads, listUsers, login, logout, me, type Options, register, resendVerification, setUserRole, verifyEmail } from '../sdk.gen';
-import type { CompleteUploadData, CompleteUploadResponse, CreateUploadData, CreateUploadResponse2, DeleteAccountData, DeleteAccountResponse, DownloadUploadData, DownloadUploadResponse2, ExportAccountData, ExportAccountResponse, IngestEventData, ListAuditLogData, ListAuditLogResponse, ListUploadsData, ListUploadsResponse, ListUsersData, ListUsersResponse, LoginData, LoginResponse, LogoutData, LogoutResponse, MeData, MeResponse, RegisterData, RegisterResponse, ResendVerificationData, ResendVerificationResponse, SetUserRoleData, SetUserRoleResponse, VerifyEmailData, VerifyEmailResponse } from '../types.gen';
+import { completeUpload, createUpload, deleteAccount, downloadUpload, exportAccount, forgotPassword, ingestEvent, listAuditLog, listUploads, listUsers, login, logout, me, type Options, register, resendVerification, resetPassword, setUserRole, verifyEmail } from '../sdk.gen';
+import type { CompleteUploadData, CompleteUploadResponse, CreateUploadData, CreateUploadResponse2, DeleteAccountData, DeleteAccountResponse, DownloadUploadData, DownloadUploadResponse2, ExportAccountData, ExportAccountResponse, ForgotPasswordData, ForgotPasswordResponse, IngestEventData, ListAuditLogData, ListAuditLogResponse, ListUploadsData, ListUploadsResponse, ListUsersData, ListUsersResponse, LoginData, LoginResponse, LogoutData, LogoutResponse, MeData, MeResponse, RegisterData, RegisterResponse, ResendVerificationData, ResendVerificationResponse, ResetPasswordData, ResetPasswordResponse, SetUserRoleData, SetUserRoleResponse, VerifyEmailData, VerifyEmailResponse } from '../types.gen';
 
 /**
  * Erase the account (GDPR art. 17). Deletes the user row; uploads cascade.
@@ -217,6 +217,26 @@ export const setUserRoleMutation = (options?: Partial<Options<SetUserRoleData>>)
 };
 
 /**
+ * Request a password-reset email.
+ *
+ * Always answers 204 — whether the account exists is never revealed, and the
+ * lookup + send happen off-request so response timing can't reveal it either.
+ */
+export const forgotPasswordMutation = (options?: Partial<Options<ForgotPasswordData>>): UseMutationOptions<ForgotPasswordResponse, DefaultError, Options<ForgotPasswordData>> => {
+    const mutationOptions: UseMutationOptions<ForgotPasswordResponse, DefaultError, Options<ForgotPasswordData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await forgotPassword({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
  * Log in with email + password.
  */
 export const loginMutation = (options?: Partial<Options<LoginData>>): UseMutationOptions<LoginResponse, DefaultError, Options<LoginData>> => {
@@ -292,6 +312,27 @@ export const resendVerificationMutation = (options?: Partial<Options<ResendVerif
     const mutationOptions: UseMutationOptions<ResendVerificationResponse, DefaultError, Options<ResendVerificationData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await resendVerification({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Set a new password with a token from the reset email.
+ *
+ * Existing sessions die with the old password (the session auth hash is the
+ * password hash), and receiving the email proves ownership, so an unverified
+ * email becomes verified.
+ */
+export const resetPasswordMutation = (options?: Partial<Options<ResetPasswordData>>): UseMutationOptions<ResetPasswordResponse, DefaultError, Options<ResetPasswordData>> => {
+    const mutationOptions: UseMutationOptions<ResetPasswordResponse, DefaultError, Options<ResetPasswordData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await resetPassword({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

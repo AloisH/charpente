@@ -616,3 +616,129 @@ async fn resend_verification_rotates_tokens(pool: PgPool) {
         .unwrap();
     assert_eq!(conflict.status(), StatusCode::CONFLICT);
 }
+
+// ── Password reset ───────────────────────────────────────────────
+
+/// The forgot-password work happens off-request (anti-enumeration), so tests
+/// poll the in-memory mailbox instead of reading it synchronously.
+async fn wait_for_mail(mailer: &MemoryMailer, count: usize) -> Vec<api::mailer::memory::SentMail> {
+    for _ in 0..200 {
+        {
+            let sent = mailer.sent.lock().unwrap();
+            if sent.len() >= count {
+                return sent.clone();
+            }
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+    }
+    panic!("expected at least {count} mails");
+}
+
+#[sqlx::test]
+async fn password_reset_flow(pool: PgPool) {
+    let (router, mailer) = app_with_mailer(pool).await;
+    register(&router, "resette@example.com").await;
+
+    let forgot = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/forgot-password",
+            None,
+            Some(json!({ "email": "resette@example.com" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(forgot.status(), StatusCode::NO_CONTENT);
+
+    // Mail 0 is the registration's verification email; mail 1 is the reset.
+    let sent = wait_for_mail(&mailer, 2).await;
+    assert!(sent[1].subject.contains("Reset"));
+    let token = mail_token(&sent[1].body);
+    assert!(sent[1].body.contains("/reset-password?token="));
+
+    // Too-short password: 422, token survives (validation runs first).
+    let weak = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/reset-password",
+            None,
+            Some(json!({ "token": token, "password": "short" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(weak.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+    let ok = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/reset-password",
+            None,
+            Some(json!({ "token": token, "password": "brand-new-password" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(ok.status(), StatusCode::NO_CONTENT);
+
+    // Single-use.
+    let reuse = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/reset-password",
+            None,
+            Some(json!({ "token": token, "password": "brand-new-password" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(reuse.status(), StatusCode::NOT_FOUND);
+
+    // Old password is dead, the new one works, and receiving the reset mail
+    // proved ownership: the account is now verified.
+    let old = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/login",
+            None,
+            Some(json!({ "email": "resette@example.com", "password": "correct-horse-battery" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(old.status(), StatusCode::UNAUTHORIZED);
+
+    let new = router
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/login",
+            None,
+            Some(json!({ "email": "resette@example.com", "password": "brand-new-password" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(new.status(), StatusCode::OK);
+    assert_eq!(body_json(new).await["email_verified"], json!(true));
+}
+
+#[sqlx::test]
+async fn forgot_password_never_reveals_accounts(pool: PgPool) {
+    let (router, mailer) = app_with_mailer(pool).await;
+
+    let unknown = router
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/forgot-password",
+            None,
+            Some(json!({ "email": "ghost@example.com" })),
+        ))
+        .await
+        .unwrap();
+    // Identical answer to the known-account case…
+    assert_eq!(unknown.status(), StatusCode::NO_CONTENT);
+
+    // …and no mail goes out.
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    assert_eq!(mailer.sent.lock().unwrap().len(), 0);
+}

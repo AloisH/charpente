@@ -12,7 +12,7 @@ use utoipa_axum::routes;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::auth::{AuthSession, Credentials, CurrentUser, User, password, verification};
+use crate::auth::{AuthSession, Credentials, CurrentUser, User, password, reset, verification};
 use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 use crate::telemetry::Ctx;
@@ -25,6 +25,8 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(me))
         .routes(routes!(verify_email))
         .routes(routes!(resend_verification))
+        .routes(routes!(forgot_password))
+        .routes(routes!(reset_password))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
@@ -205,6 +207,101 @@ pub async fn resend_verification(
         return Err(AppError::Conflict("email already verified".to_owned()));
     }
     verification::issue_and_send(&state, user.id, &user.email, &user.display_name).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct ForgotPasswordRequest {
+    #[validate(email(message = "must be a valid email address"))]
+    #[schema(format = Email)]
+    pub email: String,
+}
+
+/// Request a password-reset email.
+///
+/// Always answers 204 — whether the account exists is never revealed, and the
+/// lookup + send happen off-request so response timing can't reveal it either.
+#[utoipa::path(
+    post,
+    path = "/forgot-password",
+    tag = "auth",
+    request_body = ForgotPasswordRequest,
+    responses(
+        (status = 204, description = "If the account exists, a reset email was sent"),
+        (status = 422, description = "Validation failed"),
+    )
+)]
+pub async fn forgot_password(
+    State(state): State<AppState>,
+    Json(body): Json<ForgotPasswordRequest>,
+) -> AppResult<StatusCode> {
+    body.validate()?;
+    let email = body.email.trim().to_lowercase();
+    tokio::spawn(async move {
+        if let Err(err) = reset::request(&state, &email).await {
+            tracing::warn!(
+                target: "wide_event",
+                operation = "send_reset_email",
+                error = %err,
+                "password-reset email failed to send"
+            );
+        }
+    });
+    Ok(StatusCode::NO_CONTENT)
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct ResetPasswordRequest {
+    #[schema(min_length = 1)]
+    pub token: String,
+    #[validate(length(min = 8, max = 128, message = "must be 8 to 128 characters"))]
+    #[schema(min_length = 8, max_length = 128)]
+    pub password: String,
+}
+
+/// Set a new password with a token from the reset email.
+///
+/// Existing sessions die with the old password (the session auth hash is the
+/// password hash), and receiving the email proves ownership, so an unverified
+/// email becomes verified.
+#[utoipa::path(
+    post,
+    path = "/reset-password",
+    tag = "auth",
+    request_body = ResetPasswordRequest,
+    responses(
+        (status = 204, description = "Password changed"),
+        (status = 404, description = "Token unknown, expired, or already used"),
+        (status = 422, description = "Validation failed"),
+    )
+)]
+pub async fn reset_password(
+    State(state): State<AppState>,
+    Json(body): Json<ResetPasswordRequest>,
+) -> AppResult<StatusCode> {
+    body.validate()?;
+
+    // Hash before consuming so a hashing failure doesn't burn the token.
+    let password = body.password;
+    let password_hash = tokio::task::spawn_blocking(move || password::hash(&password))
+        .await
+        .map_err(|e| AppError::Internal(e.into()))??;
+
+    let user_id = reset::consume(&state.pool, &body.token)
+        .await?
+        .ok_or(AppError::NotFound)?;
+
+    sqlx::query!(
+        r#"UPDATE users
+           SET password_hash = $2,
+               email_verified_at = COALESCE(email_verified_at, now())
+           WHERE id = $1"#,
+        user_id,
+        password_hash
+    )
+    .execute(&state.pool)
+    .await?;
+
     Ok(StatusCode::NO_CONTENT)
 }
 

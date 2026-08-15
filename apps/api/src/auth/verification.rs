@@ -15,12 +15,17 @@ pub fn hash_token(token: &str) -> String {
     URL_SAFE_NO_PAD.encode(Sha256::digest(token.as_bytes()))
 }
 
+/// 32 random bytes, base64url — shared by every emailed-token flow.
+pub fn generate_token() -> String {
+    let mut bytes = [0u8; 32];
+    OsRng.fill_bytes(&mut bytes);
+    URL_SAFE_NO_PAD.encode(bytes)
+}
+
 /// Replace any pending token for the user and return the new raw token
 /// (only ever sent by email — never stored, never logged).
 pub async fn issue(pool: &PgPool, user_id: Uuid) -> anyhow::Result<String> {
-    let mut bytes = [0u8; 32];
-    OsRng.fill_bytes(&mut bytes);
-    let token = URL_SAFE_NO_PAD.encode(bytes);
+    let token = generate_token();
 
     let mut tx = pool.begin().await?;
     sqlx::query!(

@@ -35,6 +35,20 @@
     "resend": "Renvoyer l'e-mail",
     "resent": "E-mail de vérification envoyé."
   },
+  "resetPassword": {
+    "forgotLink": "Mot de passe oublié ?",
+    "forgotTitle": "Réinitialiser votre mot de passe",
+    "forgotHint": "Saisissez votre e-mail et nous vous enverrons un lien de réinitialisation.",
+    "sendLink": "Envoyer le lien",
+    "sent": "Si un compte existe pour cette adresse, un lien de réinitialisation est en route.",
+    "backToLogin": "Retour à la connexion",
+    "title": "Choisissez un nouveau mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "submit": "Changer le mot de passe",
+    "done": "Mot de passe changé — connectez-vous avec votre nouveau mot de passe.",
+    "invalid": "Ce lien de réinitialisation est invalide ou a expiré.",
+    "requestNew": "Demander un nouveau lien"
+  },
   "nav": {
     "dashboard": "Tableau de bord",
     "uploads": "Fichiers",

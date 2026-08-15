@@ -38,6 +38,13 @@ declare module "vue-router/auto-routes" {
       Record<never, never>,
       never
     >;
+    "/forgot-password": RouteRecordInfo<
+      "/forgot-password",
+      "/forgot-password",
+      Record<never, never>,
+      Record<never, never>,
+      never
+    >;
     "/login": RouteRecordInfo<
       "/login",
       "/login",
@@ -52,9 +59,23 @@ declare module "vue-router/auto-routes" {
       Record<never, never>,
       never
     >;
+    "/reset-password": RouteRecordInfo<
+      "/reset-password",
+      "/reset-password",
+      Record<never, never>,
+      Record<never, never>,
+      never
+    >;
     "/uploads": RouteRecordInfo<
       "/uploads",
       "/uploads",
+      Record<never, never>,
+      Record<never, never>,
+      never
+    >;
+    "/verify-email": RouteRecordInfo<
+      "/verify-email",
+      "/verify-email",
       Record<never, never>,
       Record<never, never>,
       never
@@ -84,6 +105,10 @@ declare module "vue-router/auto-routes" {
       routes: "/dashboard";
       views: never;
     };
+    "src/pages/forgot-password.vue": {
+      routes: "/forgot-password";
+      views: never;
+    };
     "src/pages/login.vue": {
       routes: "/login";
       views: never;
@@ -92,8 +117,16 @@ declare module "vue-router/auto-routes" {
       routes: "/register";
       views: never;
     };
+    "src/pages/reset-password.vue": {
+      routes: "/reset-password";
+      views: never;
+    };
     "src/pages/uploads.vue": {
       routes: "/uploads";
+      views: never;
+    };
+    "src/pages/verify-email.vue": {
+      routes: "/verify-email";
       views: never;
     };
   }

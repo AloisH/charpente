@@ -35,6 +35,20 @@
     "resend": "Resend email",
     "resent": "Verification email sent."
   },
+  "resetPassword": {
+    "forgotLink": "Forgot password?",
+    "forgotTitle": "Reset your password",
+    "forgotHint": "Enter your email and we'll send you a reset link.",
+    "sendLink": "Send reset link",
+    "sent": "If an account exists for that address, a reset link is on its way.",
+    "backToLogin": "Back to login",
+    "title": "Choose a new password",
+    "newPassword": "New password",
+    "submit": "Change password",
+    "done": "Password changed — log in with your new password.",
+    "invalid": "This reset link is invalid or has expired.",
+    "requestNew": "Request a new link"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "uploads": "Files",

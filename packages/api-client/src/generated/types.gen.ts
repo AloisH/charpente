@@ -60,6 +60,10 @@ export type DownloadUploadResponse = {
  */
 export type ErrorCode = 'validation_failed' | 'invalid_credentials' | 'unauthorized' | 'forbidden' | 'not_found' | 'conflict' | 'payload_too_large' | 'rate_limited' | 'internal';
 
+export type ForgotPasswordRequest = {
+    email: string;
+};
+
 export type LoginRequest = {
     email: string;
     password: string;
@@ -137,6 +141,11 @@ export type RegisterRequest = {
     display_name: string;
     email: string;
     password: string;
+};
+
+export type ResetPasswordRequest = {
+    password: string;
+    token: string;
 };
 
 export type RoleDto = 'admin' | 'user';
@@ -297,6 +306,29 @@ export type SetUserRoleResponses = {
 
 export type SetUserRoleResponse = SetUserRoleResponses[keyof SetUserRoleResponses];
 
+export type ForgotPasswordData = {
+    body: ForgotPasswordRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/forgot-password';
+};
+
+export type ForgotPasswordErrors = {
+    /**
+     * Validation failed
+     */
+    422: unknown;
+};
+
+export type ForgotPasswordResponses = {
+    /**
+     * If the account exists, a reset email was sent
+     */
+    204: void;
+};
+
+export type ForgotPasswordResponse = ForgotPasswordResponses[keyof ForgotPasswordResponses];
+
 export type LoginData = {
     body: LoginRequest;
     path?: never;
@@ -409,6 +441,33 @@ export type ResendVerificationResponses = {
 };
 
 export type ResendVerificationResponse = ResendVerificationResponses[keyof ResendVerificationResponses];
+
+export type ResetPasswordData = {
+    body: ResetPasswordRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/reset-password';
+};
+
+export type ResetPasswordErrors = {
+    /**
+     * Token unknown, expired, or already used
+     */
+    404: unknown;
+    /**
+     * Validation failed
+     */
+    422: unknown;
+};
+
+export type ResetPasswordResponses = {
+    /**
+     * Password changed
+     */
+    204: void;
+};
+
+export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];
 
 export type VerifyEmailData = {
     body: VerifyEmailRequest;

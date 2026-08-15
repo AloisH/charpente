@@ -37,3 +37,34 @@ export async function login(page: Page, user: { email: string; password: string 
   await page.getByRole("button", { name: /log in|se connecter/i }).click();
   await page.waitForURL("**/dashboard");
 }
+
+// ── Mailpit (docker-compose.e2e.yml exposes its REST API) ────────
+
+const MAILPIT = "http://localhost:8125";
+
+export async function clearMailbox(request: APIRequestContext): Promise<void> {
+  const response = await request.delete(`${MAILPIT}/api/v1/messages`);
+  expect(response.ok()).toBe(true);
+}
+
+/** Poll Mailpit until a message addressed to `to` arrives, return its text body. */
+export async function mailBody(request: APIRequestContext, to: string): Promise<string> {
+  await expect
+    .poll(
+      async () => {
+        const list = await request.get(`${MAILPIT}/api/v1/search?query=to:${to}`);
+        const data = (await list.json()) as { messages: { ID: string }[] };
+        return data.messages.length;
+      },
+      { timeout: 10_000 },
+    )
+    .toBeGreaterThan(0);
+
+  const list = await request.get(`${MAILPIT}/api/v1/search?query=to:${to}`);
+  const data = (await list.json()) as { messages: { ID: string }[] };
+  const first = data.messages[0];
+  if (first === undefined) throw new Error("message vanished between poll and read");
+  const message = await request.get(`${MAILPIT}/api/v1/message/${first.ID}`);
+  const body = (await message.json()) as { Text: string };
+  return body.Text;
+}

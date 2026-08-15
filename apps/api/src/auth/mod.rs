@@ -3,6 +3,7 @@
 //! later means editing [`Role::permissions`], not rewriting route guards).
 
 pub mod password;
+pub mod reset;
 pub mod verification;
 
 use std::collections::HashSet;

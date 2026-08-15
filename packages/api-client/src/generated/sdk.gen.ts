@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CompleteUploadData, CompleteUploadErrors, CompleteUploadResponses, CreateUploadData, CreateUploadErrors, CreateUploadResponses, DeleteAccountData, DeleteAccountErrors, DeleteAccountResponses, DownloadUploadData, DownloadUploadErrors, DownloadUploadResponses, ExportAccountData, ExportAccountErrors, ExportAccountResponses, IngestEventData, IngestEventResponses, ListAuditLogData, ListAuditLogErrors, ListAuditLogResponses, ListUploadsData, ListUploadsErrors, ListUploadsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, MeData, MeErrors, MeResponses, RegisterData, RegisterErrors, RegisterResponses, ResendVerificationData, ResendVerificationErrors, ResendVerificationResponses, SetUserRoleData, SetUserRoleErrors, SetUserRoleResponses, VerifyEmailData, VerifyEmailErrors, VerifyEmailResponses } from './types.gen';
+import type { CompleteUploadData, CompleteUploadErrors, CompleteUploadResponses, CreateUploadData, CreateUploadErrors, CreateUploadResponses, DeleteAccountData, DeleteAccountErrors, DeleteAccountResponses, DownloadUploadData, DownloadUploadErrors, DownloadUploadResponses, ExportAccountData, ExportAccountErrors, ExportAccountResponses, ForgotPasswordData, ForgotPasswordErrors, ForgotPasswordResponses, IngestEventData, IngestEventResponses, ListAuditLogData, ListAuditLogErrors, ListAuditLogResponses, ListUploadsData, ListUploadsErrors, ListUploadsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, MeData, MeErrors, MeResponses, RegisterData, RegisterErrors, RegisterResponses, ResendVerificationData, ResendVerificationErrors, ResendVerificationResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SetUserRoleData, SetUserRoleErrors, SetUserRoleResponses, VerifyEmailData, VerifyEmailErrors, VerifyEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -51,6 +51,21 @@ export const setUserRole = <ThrowOnError extends boolean = false>(options: Optio
 });
 
 /**
+ * Request a password-reset email.
+ *
+ * Always answers 204 — whether the account exists is never revealed, and the
+ * lookup + send happen off-request so response timing can't reveal it either.
+ */
+export const forgotPassword = <ThrowOnError extends boolean = false>(options: Options<ForgotPasswordData, ThrowOnError>): RequestResult<ForgotPasswordResponses, ForgotPasswordErrors, ThrowOnError> => (options.client ?? client).post<ForgotPasswordResponses, ForgotPasswordErrors, ThrowOnError>({
+    url: '/api/v1/auth/forgot-password',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Log in with email + password.
  */
 export const login = <ThrowOnError extends boolean = false>(options: Options<LoginData, ThrowOnError>): RequestResult<LoginResponses, LoginErrors, ThrowOnError> => (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
@@ -88,6 +103,22 @@ export const register = <ThrowOnError extends boolean = false>(options: Options<
  * Send a fresh verification email to the logged-in user.
  */
 export const resendVerification = <ThrowOnError extends boolean = false>(options?: Options<ResendVerificationData, ThrowOnError>): RequestResult<ResendVerificationResponses, ResendVerificationErrors, ThrowOnError> => (options?.client ?? client).post<ResendVerificationResponses, ResendVerificationErrors, ThrowOnError>({ url: '/api/v1/auth/resend-verification', ...options });
+
+/**
+ * Set a new password with a token from the reset email.
+ *
+ * Existing sessions die with the old password (the session auth hash is the
+ * password hash), and receiving the email proves ownership, so an unverified
+ * email becomes verified.
+ */
+export const resetPassword = <ThrowOnError extends boolean = false>(options: Options<ResetPasswordData, ThrowOnError>): RequestResult<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError> => (options.client ?? client).post<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError>({
+    url: '/api/v1/auth/reset-password',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Confirm an email address with a token from the verification email.
