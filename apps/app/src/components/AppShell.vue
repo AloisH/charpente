@@ -156,7 +156,7 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
 <template>
   <SidebarProvider>
     <Sidebar collapsible="icon">
-      <SidebarHeader class="gap-2 pt-3">
+      <SidebarHeader class="pt-3 pb-0">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton as-child size="lg">
@@ -172,7 +172,7 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
               </RouterLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
+          <SidebarMenuItem class="mt-1.5">
             <SidebarMenuButton
               :tooltip="t('command.search')"
               class="border border-input bg-background text-muted-foreground hover:bg-accent"
