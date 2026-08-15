@@ -12,7 +12,7 @@ export default defineConfig({
   retries: process.env["CI"] === undefined ? 0 : 1,
   reporter: [["html", { open: "never" }], ["list"]],
   use: {
-    baseURL: process.env["E2E_BASE_URL"] ?? "http://localhost:8080",
+    baseURL: process.env["E2E_BASE_URL"] ?? "http://localhost:8180",
     trace: "retain-on-failure",
     video: "retain-on-failure",
   },

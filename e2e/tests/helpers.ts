@@ -23,6 +23,13 @@ export async function register(
   await page.waitForURL("**/dashboard");
 }
 
+/** Open the sidebar user menu (the avatar button) and click Log out. */
+export async function logout(page: Page): Promise<void> {
+  await page.locator('[data-sidebar="footer"] button').first().click();
+  await page.getByRole("menuitem", { name: /log out|se déconnecter/i }).click();
+  await page.waitForURL("**/login");
+}
+
 export async function login(page: Page, user: { email: string; password: string }): Promise<void> {
   await page.goto("/login");
   await page.getByLabel(/e-?mail/i).fill(user.email);

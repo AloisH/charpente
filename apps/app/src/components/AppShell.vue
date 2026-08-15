@@ -1,88 +1,118 @@
 <script setup lang="ts">
-// Layout for authenticated pages: top nav, theme/locale toggles, logout.
-import { Languages, LogOut, Moon, Sun } from "@lucide/vue";
+// Layout for authenticated pages: shadcn-vue sidebar (collapsible to icons,
+// sheet on mobile, state persisted in a cookie) + a slim header with the
+// trigger. Nav items are gated by permissions via can().
+import { Files, LayoutDashboard, Users } from "@lucide/vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 
-import Can from "@/components/Can.vue";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/composables/useAuth";
+import NavUser from "@/components/NavUser.vue";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { useAuth, type Permission } from "@/composables/useAuth";
 import { useShortcut } from "@/composables/useShortcut";
 import { useUiStore } from "@/stores/ui";
 
 const { t } = useI18n();
-const { user, logout } = useAuth();
+const route = useRoute();
+const { user, can } = useAuth();
 const ui = useUiStore();
 
 // Example shortcut: Mod+Shift+L toggles the theme.
 useShortcut("Mod+Shift+L", () => ui.toggleTheme());
+
+interface NavItem {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  permission?: Permission;
+}
+
+const navItems = computed<NavItem[]>(() =>
+  [
+    { to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
+    { to: "/uploads", label: t("nav.uploads"), icon: Files },
+    {
+      to: "/admin/users",
+      label: t("nav.admin"),
+      icon: Users,
+      permission: "manage-users" as const,
+    },
+  ].filter((item) => item.permission === undefined || can(item.permission)),
+);
+
+const isActive = (to: string): boolean => route.path.startsWith(to);
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <header class="border-b border-border">
-      <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <div class="flex items-center gap-6">
-          <RouterLink to="/dashboard" class="font-semibold">
-            {{ t("common.appName") }}
-          </RouterLink>
-          <RouterLink
-            to="/dashboard"
-            class="text-sm text-muted-foreground hover:text-foreground"
-            active-class="!text-foreground"
-          >
-            {{ t("nav.dashboard") }}
-          </RouterLink>
-          <RouterLink
-            to="/uploads"
-            class="text-sm text-muted-foreground hover:text-foreground"
-            active-class="!text-foreground"
-          >
-            {{ t("nav.uploads") }}
-          </RouterLink>
-          <Can permission="manage-users">
-            <RouterLink
-              to="/admin/users"
-              class="text-sm text-muted-foreground hover:text-foreground"
-              active-class="!text-foreground"
-            >
-              {{ t("nav.admin") }}
-            </RouterLink>
-          </Can>
-        </div>
+  <SidebarProvider>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton as-child size="lg">
+              <RouterLink to="/dashboard">
+                <span
+                  class="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary font-semibold text-sidebar-primary-foreground"
+                >
+                  c
+                </span>
+                <span class="truncate font-semibold">{{ t("common.appName") }}</span>
+              </RouterLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
 
-        <div class="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            :aria-label="t('nav.toggleTheme')"
-            @click="ui.toggleTheme()"
-          >
-            <Sun v-if="ui.colorMode === 'dark'" class="size-4" />
-            <Moon v-else class="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            :aria-label="t('nav.language')"
-            @click="ui.switchLocale()"
-          >
-            <Languages class="size-4" />
-          </Button>
-          <span class="px-2 text-sm text-muted-foreground">{{ user?.display_name }}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            :aria-label="t('auth.logout')"
-            @click="logout.mutate({})"
-          >
-            <LogOut class="size-4" />
-          </Button>
-        </div>
-      </nav>
-    </header>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>{{ t("nav.navigation") }}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="item in navItems" :key="item.to">
+                <SidebarMenuButton as-child :is-active="isActive(item.to)" :tooltip="item.label">
+                  <RouterLink :to="item.to">
+                    <component :is="item.icon" />
+                    <span>{{ item.label }}</span>
+                  </RouterLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-    <main class="mx-auto max-w-6xl px-6 py-8">
-      <slot />
-    </main>
-  </div>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+
+    <SidebarInset>
+      <header class="flex h-14 items-center gap-3 border-b border-border px-4">
+        <SidebarTrigger />
+        <div class="ml-auto text-sm text-muted-foreground">
+          {{ user?.display_name }}
+        </div>
+      </header>
+      <main class="flex-1 p-6">
+        <slot />
+      </main>
+    </SidebarInset>
+  </SidebarProvider>
 </template>

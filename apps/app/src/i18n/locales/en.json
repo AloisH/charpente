@@ -29,7 +29,8 @@
     "uploads": "Files",
     "admin": "Admin",
     "toggleTheme": "Toggle theme",
-    "language": "Language"
+    "language": "Language",
+    "navigation": "Navigation"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -62,5 +63,14 @@
     "payload_too_large": "Too large",
     "rate_limited": "Too many attempts — try again in a minute",
     "internal": "Something went wrong on our side"
+  },
+  "validation": {
+    "required": "Required",
+    "invalid": "Invalid value",
+    "email": "Invalid email address",
+    "tooShort": "At least {min} characters",
+    "tooLong": "At most {max} characters",
+    "tooSmall": "Must be at least {min}",
+    "tooBig": "Must be at most {max}"
   }
 }

@@ -29,7 +29,8 @@
     "uploads": "Fichiers",
     "admin": "Admin",
     "toggleTheme": "Changer de thème",
-    "language": "Langue"
+    "language": "Langue",
+    "navigation": "Navigation"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -62,5 +63,14 @@
     "payload_too_large": "Trop volumineux",
     "rate_limited": "Trop de tentatives — réessayez dans une minute",
     "internal": "Une erreur est survenue de notre côté"
+  },
+  "validation": {
+    "required": "Requis",
+    "invalid": "Valeur invalide",
+    "email": "Adresse e-mail invalide",
+    "tooShort": "Au moins {min} caractères",
+    "tooLong": "Au plus {max} caractères",
+    "tooSmall": "Doit être au moins {min}",
+    "tooBig": "Doit être au plus {max}"
   }
 }

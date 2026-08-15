@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-import { login, register, resetDb } from "./helpers";
+import { login, logout, register, resetDb } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetDb(request);
@@ -18,8 +18,7 @@ test("signup → protected page → logout → login", async ({ page }) => {
   await expect(page.getByText(/alice/i).first()).toBeVisible();
 
   // Logout bounces back to login.
-  await page.getByRole("button", { name: /log out|se déconnecter/i }).click();
-  await page.waitForURL("**/login");
+  await logout(page);
 
   // The protected page now redirects to login.
   await page.goto("/dashboard");
@@ -35,8 +34,7 @@ test("login rejects wrong password", async ({ page }) => {
     password: "correct-horse-battery",
     displayName: "Bob",
   });
-  await page.getByRole("button", { name: /log out|se déconnecter/i }).click();
-  await page.waitForURL("**/login");
+  await logout(page);
 
   await page.getByLabel(/e-?mail/i).fill("bob@example.com");
   await page.getByLabel(/password|mot de passe/i).fill("wrong-password");

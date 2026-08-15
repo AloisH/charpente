@@ -7,6 +7,7 @@ import { routes } from "vue-router/auto-routes";
 import App from "@/App.vue";
 import { i18n } from "@/i18n";
 import { installAuthGuard } from "@/lib/auth-guard";
+import { installZodErrorMap } from "@/lib/zod-i18n";
 import { queryClient } from "@/lib/query";
 
 import "@/assets/main.css";
@@ -17,6 +18,7 @@ const router = createRouter({
 });
 
 installAuthGuard(router);
+installZodErrorMap();
 
 createApp(App)
   .use(createPinia())
