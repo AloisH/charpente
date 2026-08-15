@@ -36,7 +36,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth, type Permission } from "@/composables/useAuth";
-import { useShortcut } from "@/composables/useShortcut";
+import { formatShortcut, useShortcut } from "@/composables/useShortcut";
 import { openPalette, registerCommands } from "@/lib/command-registry";
 import { useUiStore } from "@/stores/ui";
 
@@ -92,7 +92,7 @@ registerCommands({
       id: "theme-dark",
       label: () => `${t("nav.theme")} : ${t("nav.themeDark")}`,
       icon: Moon,
-      shortcut: "⌘⇧L",
+      shortcut: formatShortcut("Mod+Shift+L"),
       perform: () => ui.setTheme("dark"),
     },
     {
@@ -150,7 +150,7 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
 <template>
   <SidebarProvider>
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader class="gap-2 pt-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton as-child size="lg">
@@ -175,7 +175,7 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
               <kbd
                 class="pointer-events-none rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium group-data-[collapsible=icon]:hidden"
               >
-                ⌘K
+                {{ formatShortcut("Mod+K") }}
               </kbd>
             </SidebarMenuButton>
           </SidebarMenuItem>
