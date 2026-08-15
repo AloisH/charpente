@@ -30,7 +30,11 @@
     "admin": "Admin",
     "toggleTheme": "Toggle theme",
     "language": "Language",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
   },
   "dashboard": {
     "title": "Dashboard",

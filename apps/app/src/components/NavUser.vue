@@ -13,7 +13,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -23,7 +28,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/composables/useAuth";
-import { useUiStore } from "@/stores/ui";
+import { useUiStore, type Locale, type Theme } from "@/stores/ui";
 
 const { t } = useI18n();
 const { user, logout } = useAuth();
@@ -96,15 +101,44 @@ const avatarColor = computed(() => {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem @click="ui.toggleTheme()">
-            <Sun v-if="ui.colorMode === 'dark'" />
-            <Moon v-else />
-            {{ t("nav.toggleTheme") }}
-          </DropdownMenuItem>
-          <DropdownMenuItem @click="ui.switchLocale()">
-            <Languages />
-            {{ ui.locale === "fr" ? "English" : "Français" }}
-          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Sun v-if="ui.colorMode !== 'dark'" class="mr-2 size-4" />
+              <Moon v-else class="mr-2 size-4" />
+              {{ t("nav.theme") }}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                :model-value="ui.theme"
+                @update:model-value="ui.setTheme($event as Theme)"
+              >
+                <DropdownMenuRadioItem value="light">
+                  {{ t("nav.themeLight") }}
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="dark">
+                  {{ t("nav.themeDark") }}
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="auto">
+                  {{ t("nav.themeSystem") }}
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Languages class="mr-2 size-4" />
+              {{ t("nav.language") }}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                :model-value="ui.locale"
+                @update:model-value="ui.setLocale($event as Locale)"
+              >
+                <DropdownMenuRadioItem value="fr">Français</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem @click="logout.mutate({})">
             <LogOut />

@@ -30,7 +30,11 @@
     "admin": "Admin",
     "toggleTheme": "Changer de thème",
     "language": "Langue",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "theme": "Thème",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Système"
   },
   "dashboard": {
     "title": "Tableau de bord",

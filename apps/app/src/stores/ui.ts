@@ -4,7 +4,10 @@ import { useColorMode } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { computed } from "vue";
 
-import { i18n, setLocale } from "@/i18n";
+import { i18n, setLocale as applyLocale } from "@/i18n";
+
+export type Theme = "light" | "dark" | "auto";
+export type Locale = "fr" | "en";
 
 export const useUiStore = defineStore("ui", () => {
   const colorMode = useColorMode({
@@ -14,15 +17,31 @@ export const useUiStore = defineStore("ui", () => {
     storageKey: "charpente.theme",
   });
 
-  const locale = computed(() => i18n.global.locale.value);
+  /** The stored preference — "auto" means follow the system. */
+  const theme = computed<Theme>({
+    get: () => colorMode.store.value,
+    set: (value) => {
+      colorMode.value = value;
+    },
+  });
+
+  const locale = computed(() => i18n.global.locale.value as Locale);
+
+  function setTheme(value: Theme): void {
+    theme.value = value;
+  }
 
   function toggleTheme(): void {
     colorMode.value = colorMode.value === "dark" ? "light" : "dark";
+  }
+
+  function setLocale(value: Locale): void {
+    applyLocale(value);
   }
 
   function switchLocale(): void {
     setLocale(locale.value === "fr" ? "en" : "fr");
   }
 
-  return { colorMode, locale, toggleTheme, switchLocale };
+  return { colorMode, theme, locale, setTheme, toggleTheme, setLocale, switchLocale };
 });
