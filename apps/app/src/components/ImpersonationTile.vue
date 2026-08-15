@@ -11,6 +11,8 @@ import { useRouter } from "vue-router";
 import { meQueryKey, stopImpersonationMutation } from "@charpente/api-client";
 
 import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/composables/useAuth";
 import { problemMessage } from "@/lib/api-errors";
 
@@ -18,6 +20,7 @@ const { t } = useI18n();
 const { user } = useAuth();
 const queryClient = useQueryClient();
 const router = useRouter();
+const { isMobile, state } = useSidebar();
 
 const stop = useMutation({
   ...stopImpersonationMutation(),
@@ -33,34 +36,43 @@ const stop = useMutation({
 </script>
 
 <template>
-  <div
-    v-if="user?.impersonating === true"
-    role="alert"
-    :title="`${user.display_name} (${user.email})`"
-    class="relative flex items-center gap-2.5 overflow-hidden rounded-lg border border-violet-500/40 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/10 to-violet-500/15 px-2.5 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0"
-  >
-    <span
-      class="flex size-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow-sm"
-    >
-      <VenetianMask class="size-4" />
-    </span>
-    <div class="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
-      <span class="text-xs font-semibold text-violet-700 dark:text-violet-300">
-        {{ t("impersonation.title") }}
-      </span>
-      <span class="truncate text-[11px] text-muted-foreground">{{ user.display_name }}</span>
-    </div>
-    <Button
-      variant="ghost"
-      size="icon"
-      class="size-7 shrink-0 text-violet-700 hover:bg-violet-500/20 hover:text-violet-800 dark:text-violet-300 dark:hover:bg-violet-400/20 dark:hover:text-violet-200 group-data-[collapsible=icon]:hidden"
-      :aria-label="t('impersonation.stop')"
-      :title="t('impersonation.stop')"
-      :disabled="stop.isPending.value"
-      @click="stop.mutate({})"
-    >
-      <Loader2 v-if="stop.isPending.value" class="size-4 animate-spin" />
-      <X v-else class="size-4" />
-    </Button>
-  </div>
+  <Tooltip v-if="user?.impersonating === true">
+    <TooltipTrigger as-child>
+      <div
+        role="alert"
+        class="relative flex items-center gap-2.5 overflow-hidden rounded-lg border border-violet-500/40 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/10 to-violet-500/15 px-2.5 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0"
+      >
+        <span
+          class="flex size-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow-sm"
+        >
+          <VenetianMask class="size-4" />
+        </span>
+        <div class="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
+          <span class="text-xs font-semibold text-violet-700 dark:text-violet-300">
+            {{ t("impersonation.title") }}
+          </span>
+          <span class="truncate text-[11px] text-muted-foreground">{{ user.display_name }}</span>
+        </div>
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="size-7 shrink-0 text-violet-700 hover:bg-violet-500/20 hover:text-violet-800 dark:text-violet-300 dark:hover:bg-violet-400/20 dark:hover:text-violet-200 group-data-[collapsible=icon]:hidden"
+              :aria-label="t('impersonation.stop')"
+              :disabled="stop.isPending.value"
+              @click="stop.mutate({})"
+            >
+              <Loader2 v-if="stop.isPending.value" class="size-4 animate-spin" />
+              <X v-else class="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top">{{ t("impersonation.stop") }}</TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipTrigger>
+    <TooltipContent side="right" align="center" :hidden="state !== 'collapsed' || isMobile">
+      {{ t("impersonation.title") }} — {{ user.display_name }} ({{ user.email }})
+    </TooltipContent>
+  </Tooltip>
 </template>
