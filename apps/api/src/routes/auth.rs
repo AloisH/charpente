@@ -12,7 +12,7 @@ use utoipa_axum::routes;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::auth::{AuthSession, Credentials, CurrentUser, User, password};
+use crate::auth::{AuthSession, Credentials, CurrentUser, User, password, verification};
 use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 use crate::telemetry::Ctx;
@@ -23,6 +23,8 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(login))
         .routes(routes!(logout))
         .routes(routes!(me))
+        .routes(routes!(verify_email))
+        .routes(routes!(resend_verification))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
@@ -38,6 +40,7 @@ pub struct UserDto {
     pub email: String,
     pub display_name: String,
     pub role: RoleDto,
+    pub email_verified: bool,
     pub created_at: DateTime<Utc>,
 }
 
@@ -51,6 +54,7 @@ impl From<User> for UserDto {
                 crate::auth::Role::Admin => RoleDto::Admin,
                 crate::auth::Role::User => RoleDto::User,
             },
+            email_verified: user.email_verified_at.is_some(),
             created_at: user.created_at,
         }
     }
@@ -137,7 +141,71 @@ pub async fn register(
         .await
         .map_err(|e| AppError::Internal(anyhow::anyhow!("session login failed: {e}")))?;
 
+    // Best-effort: a down SMTP server must not block account creation; the
+    // user can resend from the in-app banner.
+    if let Err(err) =
+        verification::issue_and_send(&state, user.id, &user.email, &user.display_name).await
+    {
+        tracing::warn!(
+            target: "wide_event",
+            operation = "send_verification_email",
+            user_id = %user.id,
+            error = %err,
+            "verification email failed to send"
+        );
+    }
+
     Ok((StatusCode::CREATED, Json(user.into())))
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct VerifyEmailRequest {
+    #[schema(min_length = 1)]
+    pub token: String,
+}
+
+/// Confirm an email address with a token from the verification email.
+/// Works without a session — the link may be opened in any browser.
+#[utoipa::path(
+    post,
+    path = "/verify-email",
+    tag = "auth",
+    request_body = VerifyEmailRequest,
+    responses(
+        (status = 204, description = "Email verified"),
+        (status = 404, description = "Token unknown, expired, or already used"),
+    )
+)]
+pub async fn verify_email(
+    State(state): State<AppState>,
+    Json(body): Json<VerifyEmailRequest>,
+) -> AppResult<StatusCode> {
+    verification::consume(&state.pool, &body.token)
+        .await?
+        .ok_or(AppError::NotFound)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/// Send a fresh verification email to the logged-in user.
+#[utoipa::path(
+    post,
+    path = "/resend-verification",
+    tag = "auth",
+    responses(
+        (status = 204, description = "Verification email sent"),
+        (status = 401, description = "Not authenticated"),
+        (status = 409, description = "Email already verified"),
+    )
+)]
+pub async fn resend_verification(
+    State(state): State<AppState>,
+    CurrentUser(user): CurrentUser,
+) -> AppResult<StatusCode> {
+    if user.email_verified_at.is_some() {
+        return Err(AppError::Conflict("email already verified".to_owned()));
+    }
+    verification::issue_and_send(&state, user.id, &user.email, &user.display_name).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 /// Log in with email + password.

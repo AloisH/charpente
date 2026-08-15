@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/vue-query';
 
 import { client } from '../client.gen';
-import { completeUpload, createUpload, deleteAccount, downloadUpload, exportAccount, ingestEvent, listAuditLog, listUploads, listUsers, login, logout, me, type Options, register, setUserRole } from '../sdk.gen';
-import type { CompleteUploadData, CompleteUploadResponse, CreateUploadData, CreateUploadResponse2, DeleteAccountData, DeleteAccountResponse, DownloadUploadData, DownloadUploadResponse2, ExportAccountData, ExportAccountResponse, IngestEventData, ListAuditLogData, ListAuditLogResponse, ListUploadsData, ListUploadsResponse, ListUsersData, ListUsersResponse, LoginData, LoginResponse, LogoutData, LogoutResponse, MeData, MeResponse, RegisterData, RegisterResponse, SetUserRoleData, SetUserRoleResponse } from '../types.gen';
+import { completeUpload, createUpload, deleteAccount, downloadUpload, exportAccount, ingestEvent, listAuditLog, listUploads, listUsers, login, logout, me, type Options, register, resendVerification, setUserRole, verifyEmail } from '../sdk.gen';
+import type { CompleteUploadData, CompleteUploadResponse, CreateUploadData, CreateUploadResponse2, DeleteAccountData, DeleteAccountResponse, DownloadUploadData, DownloadUploadResponse2, ExportAccountData, ExportAccountResponse, IngestEventData, ListAuditLogData, ListAuditLogResponse, ListUploadsData, ListUploadsResponse, ListUsersData, ListUsersResponse, LoginData, LoginResponse, LogoutData, LogoutResponse, MeData, MeResponse, RegisterData, RegisterResponse, ResendVerificationData, ResendVerificationResponse, SetUserRoleData, SetUserRoleResponse, VerifyEmailData, VerifyEmailResponse } from '../types.gen';
 
 /**
  * Erase the account (GDPR art. 17). Deletes the user row; uploads cascade.
@@ -275,6 +275,41 @@ export const registerMutation = (options?: Partial<Options<RegisterData>>): UseM
     const mutationOptions: UseMutationOptions<RegisterResponse, DefaultError, Options<RegisterData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await register({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Send a fresh verification email to the logged-in user.
+ */
+export const resendVerificationMutation = (options?: Partial<Options<ResendVerificationData>>): UseMutationOptions<ResendVerificationResponse, DefaultError, Options<ResendVerificationData>> => {
+    const mutationOptions: UseMutationOptions<ResendVerificationResponse, DefaultError, Options<ResendVerificationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await resendVerification({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Confirm an email address with a token from the verification email.
+ * Works without a session — the link may be opened in any browser.
+ */
+export const verifyEmailMutation = (options?: Partial<Options<VerifyEmailData>>): UseMutationOptions<VerifyEmailResponse, DefaultError, Options<VerifyEmailData>> => {
+    const mutationOptions: UseMutationOptions<VerifyEmailResponse, DefaultError, Options<VerifyEmailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await verifyEmail({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

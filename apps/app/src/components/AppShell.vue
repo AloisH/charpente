@@ -24,6 +24,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import CommandPalette from "@/components/CommandPalette.vue";
 import NavUser from "@/components/NavUser.vue";
+import VerifyEmailBanner from "@/components/VerifyEmailBanner.vue";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -306,6 +307,7 @@ if (isDev) {
           {{ user?.display_name }}
         </div>
       </header>
+      <VerifyEmailBanner />
       <main class="flex-1 p-6">
         <slot />
       </main>

@@ -87,6 +87,7 @@ export const zPageUserDto = z.object({
         created_at: z.iso.datetime(),
         display_name: z.string(),
         email: z.string(),
+        email_verified: z.boolean(),
         id: z.uuid(),
         role: zRoleDto
     })),
@@ -130,6 +131,7 @@ export const zUserDto = z.object({
     created_at: z.iso.datetime(),
     display_name: z.string(),
     email: z.string(),
+    email_verified: z.boolean(),
     id: z.uuid(),
     role: zRoleDto
 });
@@ -137,6 +139,10 @@ export const zUserDto = z.object({
 export const zAccountExport = z.object({
     uploads: z.array(zUploadDto),
     user: zUserDto
+});
+
+export const zVerifyEmailRequest = z.object({
+    token: z.string().min(1)
 });
 
 /**
@@ -188,6 +194,18 @@ export const zRegisterBody = zRegisterRequest;
  * Account created and logged in
  */
 export const zRegisterResponse = zUserDto;
+
+/**
+ * Verification email sent
+ */
+export const zResendVerificationResponse = z.void();
+
+export const zVerifyEmailBody = zVerifyEmailRequest;
+
+/**
+ * Email verified
+ */
+export const zVerifyEmailResponse = z.void();
 
 export const zIngestEventBody = zClientEvent;
 

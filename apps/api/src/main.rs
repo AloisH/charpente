@@ -5,7 +5,7 @@ use anyhow::Context;
 
 use api::config::Config;
 use api::state::AppState;
-use api::{app, db, openapi, seed, storage, telemetry};
+use api::{app, db, mailer, openapi, seed, storage, telemetry};
 
 fn main() -> anyhow::Result<()> {
     // `dump-openapi` must work without env vars, a database, or a runtime —
@@ -52,10 +52,12 @@ async fn async_main(command: Option<String>) -> anyhow::Result<()> {
     }
 
     let storage = Arc::new(storage::S3Storage::from_config(&config));
+    let mailer = mailer::from_config(&config).context("mailer configuration failed")?;
     let state = AppState {
         pool,
         config: Arc::new(config.clone()),
         storage,
+        mailer,
     };
     let router = app::build(state).await?;
 

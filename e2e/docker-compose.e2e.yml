@@ -41,6 +41,17 @@ services:
       mc cors set e2e/charpente /tmp/cors.xml
       "
 
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      # Web UI + REST API, host-reachable so tests can read delivered mail.
+      - "8125:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
   app:
     image: charpente-app:e2e
     ports:
@@ -59,8 +70,13 @@ services:
       S3_SECRET_KEY: rustfsadmin
       SEED_ADMIN_EMAIL: admin@example.com
       SEED_ADMIN_PASSWORD: e2e-admin-password
+      SMTP_URL: smtp://mailpit:1025
+      # Emailed links must point at the app as the browser reaches it.
+      MAIL_BASE_URL: http://localhost:8180
     depends_on:
       db:
         condition: service_healthy
       rustfs-init:
         condition: service_completed_successfully
+      mailpit:
+        condition: service_healthy

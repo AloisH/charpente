@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CompleteUploadData, CompleteUploadErrors, CompleteUploadResponses, CreateUploadData, CreateUploadErrors, CreateUploadResponses, DeleteAccountData, DeleteAccountErrors, DeleteAccountResponses, DownloadUploadData, DownloadUploadErrors, DownloadUploadResponses, ExportAccountData, ExportAccountErrors, ExportAccountResponses, IngestEventData, IngestEventResponses, ListAuditLogData, ListAuditLogErrors, ListAuditLogResponses, ListUploadsData, ListUploadsErrors, ListUploadsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, MeData, MeErrors, MeResponses, RegisterData, RegisterErrors, RegisterResponses, SetUserRoleData, SetUserRoleErrors, SetUserRoleResponses } from './types.gen';
+import type { CompleteUploadData, CompleteUploadErrors, CompleteUploadResponses, CreateUploadData, CreateUploadErrors, CreateUploadResponses, DeleteAccountData, DeleteAccountErrors, DeleteAccountResponses, DownloadUploadData, DownloadUploadErrors, DownloadUploadResponses, ExportAccountData, ExportAccountErrors, ExportAccountResponses, IngestEventData, IngestEventResponses, ListAuditLogData, ListAuditLogErrors, ListAuditLogResponses, ListUploadsData, ListUploadsErrors, ListUploadsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutResponses, MeData, MeErrors, MeResponses, RegisterData, RegisterErrors, RegisterResponses, ResendVerificationData, ResendVerificationErrors, ResendVerificationResponses, SetUserRoleData, SetUserRoleErrors, SetUserRoleResponses, VerifyEmailData, VerifyEmailErrors, VerifyEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -77,6 +77,24 @@ export const me = <ThrowOnError extends boolean = false>(options?: Options<MeDat
  */
 export const register = <ThrowOnError extends boolean = false>(options: Options<RegisterData, ThrowOnError>): RequestResult<RegisterResponses, RegisterErrors, ThrowOnError> => (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
     url: '/api/v1/auth/register',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Send a fresh verification email to the logged-in user.
+ */
+export const resendVerification = <ThrowOnError extends boolean = false>(options?: Options<ResendVerificationData, ThrowOnError>): RequestResult<ResendVerificationResponses, ResendVerificationErrors, ThrowOnError> => (options?.client ?? client).post<ResendVerificationResponses, ResendVerificationErrors, ThrowOnError>({ url: '/api/v1/auth/resend-verification', ...options });
+
+/**
+ * Confirm an email address with a token from the verification email.
+ * Works without a session — the link may be opened in any browser.
+ */
+export const verifyEmail = <ThrowOnError extends boolean = false>(options: Options<VerifyEmailData, ThrowOnError>): RequestResult<VerifyEmailResponses, VerifyEmailErrors, ThrowOnError> => (options.client ?? client).post<VerifyEmailResponses, VerifyEmailErrors, ThrowOnError>({
+    url: '/api/v1/auth/verify-email',
     ...options,
     headers: {
         'Content-Type': 'application/json',

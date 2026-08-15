@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, email, display_name, role, created_at AS \"created_at: DateTime<Utc>\"\n           FROM users\n           WHERE ($1::uuid IS NULL OR id < $1)\n           ORDER BY id DESC\n           LIMIT $2",
+  "query": "SELECT id, email, display_name, role,\n                  email_verified_at AS \"email_verified_at: DateTime<Utc>\",\n                  created_at AS \"created_at: DateTime<Utc>\"\n           FROM users\n           WHERE ($1::uuid IS NULL OR id < $1)\n           ORDER BY id DESC\n           LIMIT $2",
   "describe": {
     "columns": [
       {
@@ -25,6 +25,11 @@
       },
       {
         "ordinal": 4,
+        "name": "email_verified_at: DateTime<Utc>",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
         "name": "created_at: DateTime<Utc>",
         "type_info": "Timestamptz"
       }
@@ -40,8 +45,9 @@
       false,
       false,
       false,
+      true,
       false
     ]
   },
-  "hash": "85f7a948eaf1ec623c0568c0bf2b8599460ec7fe46ac41530b258dcae13387f5"
+  "hash": "41f4f472d244ab8309ff8d968f866acc4eb41fa89cfabb646d16664c771da01d"
 }

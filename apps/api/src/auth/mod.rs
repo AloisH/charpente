@@ -3,6 +3,7 @@
 //! later means editing [`Role::permissions`], not rewriting route guards).
 
 pub mod password;
+pub mod verification;
 
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -64,6 +65,7 @@ pub struct User {
     pub password_hash: String,
     pub display_name: String,
     pub role: Role,
+    pub email_verified_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -76,6 +78,7 @@ struct UserRow {
     password_hash: String,
     display_name: String,
     role: String,
+    email_verified_at: Option<DateTime<Utc>>,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
@@ -90,6 +93,7 @@ impl TryFrom<UserRow> for User {
             password_hash: row.password_hash,
             display_name: row.display_name,
             role: row.role.parse()?,
+            email_verified_at: row.email_verified_at,
             created_at: row.created_at,
             updated_at: row.updated_at,
         })
@@ -139,6 +143,7 @@ impl Backend {
         let row = sqlx::query_as!(
             UserRow,
             r#"SELECT id, email, password_hash, display_name, role,
+                      email_verified_at AS "email_verified_at: DateTime<Utc>",
                       created_at AS "created_at: DateTime<Utc>",
                       updated_at AS "updated_at: DateTime<Utc>"
                FROM users WHERE lower(email) = lower($1)"#,
@@ -180,6 +185,7 @@ impl AuthnBackend for Backend {
         let row = sqlx::query_as!(
             UserRow,
             r#"SELECT id, email, password_hash, display_name, role,
+                      email_verified_at AS "email_verified_at: DateTime<Utc>",
                       created_at AS "created_at: DateTime<Utc>",
                       updated_at AS "updated_at: DateTime<Utc>"
                FROM users WHERE id = $1"#,

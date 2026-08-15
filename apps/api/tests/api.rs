@@ -17,6 +17,7 @@ use sqlx::PgPool;
 use tower::ServiceExt;
 
 use api::config::{AppEnv, Config};
+use api::mailer::memory::MemoryMailer;
 use api::state::AppState;
 use api::storage::memory::MemoryStorage;
 
@@ -37,6 +38,9 @@ fn test_config() -> Config {
         s3_secret_key: "test".into(),
         seed_admin_email: Some("admin@example.com".into()),
         seed_admin_password: Some("admin-password-123".into()),
+        smtp_url: None,
+        mail_from: "test <no-reply@test>".into(),
+        mail_base_url: Some("http://app.test".into()),
     }
 }
 
@@ -46,13 +50,21 @@ fn base64_key() -> String {
 }
 
 async fn app(pool: PgPool) -> Router {
+    app_with_mailer(pool).await.0
+}
+
+/// Variant handing back the in-memory mailer so tests can read sent mail.
+async fn app_with_mailer(pool: PgPool) -> (Router, Arc<MemoryMailer>) {
     let config = Arc::new(test_config());
+    let mailer = Arc::new(MemoryMailer::default());
     let state = AppState {
         pool,
         config,
         storage: Arc::new(MemoryStorage::default()),
+        mailer: Arc::clone(&mailer) as _,
     };
-    api::app::build(state).await.expect("router builds")
+    let router = api::app::build(state).await.expect("router builds");
+    (router, mailer)
 }
 
 /// Request builder that always carries ConnectInfo (the rate limiter needs a
@@ -474,4 +486,133 @@ fn openapi_spec_snapshot() {
     let doc = api::openapi::document();
     let json: Value = serde_json::from_str(&doc.to_json().unwrap()).unwrap();
     insta::assert_json_snapshot!(json);
+}
+
+// ── Email verification ───────────────────────────────────────────
+
+/// Pull the raw token out of the emailed link (`…/verify-email?token=<t>`).
+fn mail_token(body: &str) -> String {
+    let start = body.find("token=").expect("mail contains a token link") + "token=".len();
+    body[start..]
+        .chars()
+        .take_while(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect()
+}
+
+#[sqlx::test]
+async fn email_verification_flow(pool: PgPool) {
+    let (router, mailer) = app_with_mailer(pool).await;
+    let (cookie, user) = register(&router, "vera@example.com").await;
+    assert_eq!(user["email_verified"], json!(false));
+
+    let sent = mailer.sent.lock().unwrap().clone();
+    assert_eq!(sent.len(), 1);
+    assert_eq!(sent[0].to, "vera@example.com");
+    let token = mail_token(&sent[0].body);
+    assert!(sent[0].body.contains("http://app.test/verify-email?token="));
+
+    // Unknown token: 404.
+    let bad = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/verify-email",
+            None,
+            Some(json!({ "token": "nope" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(bad.status(), StatusCode::NOT_FOUND);
+
+    // The real token verifies — no session required (any browser may open it).
+    let ok = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/verify-email",
+            None,
+            Some(json!({ "token": token })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(ok.status(), StatusCode::NO_CONTENT);
+
+    // Single-use.
+    let again = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/verify-email",
+            None,
+            Some(json!({ "token": token })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(again.status(), StatusCode::NOT_FOUND);
+
+    let me = router
+        .oneshot(req("GET", "/api/v1/auth/me", Some(&cookie), None))
+        .await
+        .unwrap();
+    assert_eq!(body_json(me).await["email_verified"], json!(true));
+}
+
+#[sqlx::test]
+async fn resend_verification_rotates_tokens(pool: PgPool) {
+    let (router, mailer) = app_with_mailer(pool).await;
+    let (cookie, _) = register(&router, "rene@example.com").await;
+
+    let resent = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/resend-verification",
+            Some(&cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(resent.status(), StatusCode::NO_CONTENT);
+
+    let sent = mailer.sent.lock().unwrap().clone();
+    assert_eq!(sent.len(), 2);
+    let (first, second) = (mail_token(&sent[0].body), mail_token(&sent[1].body));
+    assert_ne!(first, second);
+
+    // Re-issuing invalidated the first token.
+    let stale = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/verify-email",
+            None,
+            Some(json!({ "token": first })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(stale.status(), StatusCode::NOT_FOUND);
+
+    let ok = router
+        .clone()
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/verify-email",
+            None,
+            Some(json!({ "token": second })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(ok.status(), StatusCode::NO_CONTENT);
+
+    // Already verified: resending is a conflict.
+    let conflict = router
+        .oneshot(req(
+            "POST",
+            "/api/v1/auth/resend-verification",
+            Some(&cookie),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(conflict.status(), StatusCode::CONFLICT);
 }

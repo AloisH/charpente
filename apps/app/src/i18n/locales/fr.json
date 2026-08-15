@@ -25,6 +25,16 @@
     "devLoginAdmin": "Connexion admin",
     "devLoginUser": "Connexion utilisateur"
   },
+  "verifyEmail": {
+    "title": "Vérification de l'e-mail",
+    "verifying": "Vérification de votre e-mail…",
+    "success": "Votre e-mail est vérifié.",
+    "goToDashboard": "Aller au tableau de bord",
+    "invalid": "Ce lien de vérification est invalide ou a expiré.",
+    "banner": "Votre adresse e-mail n'est pas encore vérifiée — consultez votre boîte de réception.",
+    "resend": "Renvoyer l'e-mail",
+    "resent": "E-mail de vérification envoyé."
+  },
   "nav": {
     "dashboard": "Tableau de bord",
     "uploads": "Fichiers",

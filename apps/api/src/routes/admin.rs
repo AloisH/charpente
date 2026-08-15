@@ -29,6 +29,7 @@ struct UserListRow {
     email: String,
     display_name: String,
     role: String,
+    email_verified_at: Option<DateTime<Utc>>,
     created_at: DateTime<Utc>,
 }
 
@@ -48,6 +49,7 @@ impl TryFrom<UserListRow> for UserDto {
             email: row.email,
             display_name: row.display_name,
             role,
+            email_verified: row.email_verified_at.is_some(),
             created_at: row.created_at,
         })
     }
@@ -73,7 +75,9 @@ pub async fn list_users(
     let limit = params.limit();
     let rows = sqlx::query_as!(
         UserListRow,
-        r#"SELECT id, email, display_name, role, created_at AS "created_at: DateTime<Utc>"
+        r#"SELECT id, email, display_name, role,
+                  email_verified_at AS "email_verified_at: DateTime<Utc>",
+                  created_at AS "created_at: DateTime<Utc>"
            FROM users
            WHERE ($1::uuid IS NULL OR id < $1)
            ORDER BY id DESC
@@ -123,7 +127,9 @@ pub async fn set_user_role(
     let row = sqlx::query_as!(
         UserListRow,
         r#"UPDATE users SET role = $2 WHERE id = $1
-           RETURNING id, email, display_name, role, created_at AS "created_at: DateTime<Utc>""#,
+           RETURNING id, email, display_name, role,
+                     email_verified_at AS "email_verified_at: DateTime<Utc>",
+                     created_at AS "created_at: DateTime<Utc>""#,
         id,
         role
     )

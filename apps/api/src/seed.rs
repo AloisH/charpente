@@ -20,10 +20,10 @@ pub async fn seed_admin(pool: &PgPool, config: &Config) -> anyhow::Result<()> {
         tokio::task::spawn_blocking(move || password::hash(&seed_password)).await??;
 
     sqlx::query!(
-        r#"INSERT INTO users (id, email, password_hash, display_name, role)
-           VALUES ($1, $2, $3, 'Admin', 'admin')
+        r#"INSERT INTO users (id, email, password_hash, display_name, role, email_verified_at)
+           VALUES ($1, $2, $3, 'Admin', 'admin', now())
            ON CONFLICT ((lower(email)))
-           DO UPDATE SET role = 'admin'"#,
+           DO UPDATE SET role = 'admin', email_verified_at = now()"#,
         Uuid::now_v7(),
         email,
         password_hash

@@ -302,6 +302,53 @@
         }
       }
     },
+    "/api/v1/auth/resend-verification": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Send a fresh verification email to the logged-in user.",
+        "operationId": "resend_verification",
+        "responses": {
+          "204": {
+            "description": "Verification email sent"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "409": {
+            "description": "Email already verified"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/verify-email": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Confirm an email address with a token from the verification email.\nWorks without a session — the link may be opened in any browser.",
+        "operationId": "verify_email",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Email verified"
+          },
+          "404": {
+            "description": "Token unknown, expired, or already used"
+          }
+        }
+      }
+    },
     "/api/v1/events": {
       "post": {
         "tags": [
@@ -778,6 +825,7 @@
                 "email",
                 "display_name",
                 "role",
+                "email_verified",
                 "created_at"
               ],
               "properties": {
@@ -790,6 +838,9 @@
                 },
                 "email": {
                   "type": "string"
+                },
+                "email_verified": {
+                  "type": "boolean"
                 },
                 "id": {
                   "type": "string",
@@ -950,6 +1001,7 @@
           "email",
           "display_name",
           "role",
+          "email_verified",
           "created_at"
         ],
         "properties": {
@@ -963,12 +1015,27 @@
           "email": {
             "type": "string"
           },
+          "email_verified": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
           },
           "role": {
             "$ref": "#/components/schemas/RoleDto"
+          }
+        }
+      },
+      "VerifyEmailRequest": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }

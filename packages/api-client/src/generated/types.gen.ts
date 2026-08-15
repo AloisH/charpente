@@ -103,6 +103,7 @@ export type PageUserDto = {
         created_at: string;
         display_name: string;
         email: string;
+        email_verified: boolean;
         id: string;
         role: RoleDto;
     }>;
@@ -159,8 +160,13 @@ export type UserDto = {
     created_at: string;
     display_name: string;
     email: string;
+    email_verified: boolean;
     id: string;
     role: RoleDto;
+};
+
+export type VerifyEmailRequest = {
+    token: string;
 };
 
 export type DeleteAccountData = {
@@ -376,6 +382,56 @@ export type RegisterResponses = {
 };
 
 export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
+
+export type ResendVerificationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/resend-verification';
+};
+
+export type ResendVerificationErrors = {
+    /**
+     * Not authenticated
+     */
+    401: unknown;
+    /**
+     * Email already verified
+     */
+    409: unknown;
+};
+
+export type ResendVerificationResponses = {
+    /**
+     * Verification email sent
+     */
+    204: void;
+};
+
+export type ResendVerificationResponse = ResendVerificationResponses[keyof ResendVerificationResponses];
+
+export type VerifyEmailData = {
+    body: VerifyEmailRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/verify-email';
+};
+
+export type VerifyEmailErrors = {
+    /**
+     * Token unknown, expired, or already used
+     */
+    404: unknown;
+};
+
+export type VerifyEmailResponses = {
+    /**
+     * Email verified
+     */
+    204: void;
+};
+
+export type VerifyEmailResponse = VerifyEmailResponses[keyof VerifyEmailResponses];
 
 export type IngestEventData = {
     body: ClientEvent;

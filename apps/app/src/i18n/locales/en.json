@@ -25,6 +25,16 @@
     "devLoginAdmin": "Log in as admin",
     "devLoginUser": "Log in as user"
   },
+  "verifyEmail": {
+    "title": "Email verification",
+    "verifying": "Verifying your email…",
+    "success": "Your email is verified.",
+    "goToDashboard": "Go to dashboard",
+    "invalid": "This verification link is invalid or has expired.",
+    "banner": "Your email address is not verified yet — check your inbox.",
+    "resend": "Resend email",
+    "resent": "Verification email sent."
+  },
   "nav": {
     "dashboard": "Dashboard",
     "uploads": "Files",

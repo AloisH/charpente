@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, email, password_hash, display_name, role,\n                      created_at AS \"created_at: DateTime<Utc>\",\n                      updated_at AS \"updated_at: DateTime<Utc>\"\n               FROM users WHERE id = $1",
+  "query": "SELECT id, email, password_hash, display_name, role,\n                      email_verified_at AS \"email_verified_at: DateTime<Utc>\",\n                      created_at AS \"created_at: DateTime<Utc>\",\n                      updated_at AS \"updated_at: DateTime<Utc>\"\n               FROM users WHERE lower(email) = lower($1)",
   "describe": {
     "columns": [
       {
@@ -30,18 +30,23 @@
       },
       {
         "ordinal": 5,
-        "name": "created_at: DateTime<Utc>",
+        "name": "email_verified_at: DateTime<Utc>",
         "type_info": "Timestamptz"
       },
       {
         "ordinal": 6,
+        "name": "created_at: DateTime<Utc>",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
         "name": "updated_at: DateTime<Utc>",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
@@ -50,9 +55,10 @@
       false,
       false,
       false,
+      true,
       false,
       false
     ]
   },
-  "hash": "c56af0a967a75b60827ab19158225564fe53e1eee50457567bf316b24e46befa"
+  "hash": "a84205ac181b6d24295aa76638f1b7143850850ad92167a9d0e0e1adc723b623"
 }

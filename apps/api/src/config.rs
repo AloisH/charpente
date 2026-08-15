@@ -47,6 +47,16 @@ pub struct Config {
     pub seed_admin_email: Option<String>,
     #[serde(default)]
     pub seed_admin_password: Option<String>,
+    /// `smtp://` or `smtps://` URL for outgoing mail (Mailpit in dev:
+    /// `smtp://localhost:1025`). Unset → mail is logged instead of sent.
+    #[serde(default)]
+    pub smtp_url: Option<String>,
+    #[serde(default = "default_mail_from")]
+    pub mail_from: String,
+    /// Origin used in emailed links (verification), when it differs from
+    /// `app_public_url` (e.g. the embedded-SPA image serving on its own port).
+    #[serde(default)]
+    pub mail_base_url: Option<String>,
 }
 
 fn default_host() -> String {
@@ -61,12 +71,27 @@ fn default_region() -> String {
     "us-east-1".to_owned()
 }
 
+fn default_mail_from() -> String {
+    "charpente <no-reply@charpente.localhost>".to_owned()
+}
+
 impl Config {
     /// The storage origin browsers connect to (presigned URLs, CSP).
     pub fn s3_browser_endpoint(&self) -> &str {
         self.s3_public_endpoint
             .as_deref()
             .unwrap_or(&self.s3_endpoint)
+    }
+
+    /// Origin for links embedded in emails, without a trailing slash.
+    pub fn mail_link_base(&self) -> String {
+        self.mail_base_url
+            .as_deref()
+            .or(self.app_public_url.as_deref())
+            .map_or_else(
+                || format!("http://localhost:{}", self.app_port),
+                |base| base.trim_end_matches('/').to_owned(),
+            )
     }
 }
 
