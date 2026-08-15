@@ -45,7 +45,7 @@ const resend = useMutation({
     <Button
       variant="ghost"
       size="icon"
-      class="size-7 shrink-0 group-data-[collapsible=icon]:hidden"
+      class="size-7 shrink-0 text-sky-700 hover:bg-sky-500/20 hover:text-sky-800 dark:text-sky-300 dark:hover:bg-sky-400/20 dark:hover:text-sky-200 group-data-[collapsible=icon]:hidden"
       :aria-label="t('verifyEmail.resend')"
       :title="t('verifyEmail.resend')"
       :disabled="resend.isPending.value"

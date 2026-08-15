@@ -53,7 +53,7 @@ const stop = useMutation({
     <Button
       variant="ghost"
       size="icon"
-      class="size-7 shrink-0 group-data-[collapsible=icon]:hidden"
+      class="size-7 shrink-0 text-violet-700 hover:bg-violet-500/20 hover:text-violet-800 dark:text-violet-300 dark:hover:bg-violet-400/20 dark:hover:text-violet-200 group-data-[collapsible=icon]:hidden"
       :aria-label="t('impersonation.stop')"
       :title="t('impersonation.stop')"
       :disabled="stop.isPending.value"
