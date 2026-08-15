@@ -4,6 +4,7 @@
 // trigger. Nav items are gated by permissions via can().
 import {
   Files,
+  FlaskConical,
   Languages,
   LayoutDashboard,
   LogOut,
