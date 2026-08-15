@@ -15,8 +15,11 @@ setup:
 # ── Dev ──────────────────────────────────────────────────────────
 
 # Start local infra (postgres, rustfs, adminer, mailpit)
+# rustfs-init is a one-shot (creates the bucket, exits 0), which `--wait`
+# would count as a failure — so it runs separately.
 infra:
-    docker compose -f docker-compose.dev.yml up -d --wait
+    docker compose -f docker-compose.dev.yml up -d --wait postgres rustfs adminer mailpit
+    docker compose -f docker-compose.dev.yml run --rm rustfs-init
 
 infra-down:
     docker compose -f docker-compose.dev.yml down
