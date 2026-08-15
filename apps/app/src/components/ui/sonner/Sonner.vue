@@ -11,6 +11,10 @@ import {
 import { Toaster as Sonner } from "vue-sonner";
 import { cn } from "@/lib/utils";
 
+// vue-sonner v2 ships its styles separately — without this the toasts render
+// as unstyled text in the page corner.
+import "vue-sonner/style.css";
+
 const props = defineProps<ToasterProps>();
 </script>
 
