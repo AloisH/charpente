@@ -51,6 +51,12 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    // The root stays dynamic: detectBrowserLanguage redirects on "/" using
+    // the cookie/Accept-Language, which a prerendered page can't do.
     "/": { prerender: false },
+    // Static content — render once at build.
+    "/legal": { prerender: true, robots: false },
+    "/en": { prerender: true },
+    "/en/legal": { prerender: true, robots: false },
   },
 });

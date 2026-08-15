@@ -2,19 +2,124 @@
   "nav": {
     "main": "Main navigation",
     "app": "Open the app",
-    "legal": "Legal notice"
+    "github": "Source code on GitHub",
+    "legal": "Legal notice",
+    "switchLocale": "Français"
   },
   "home": {
     "title": "Home",
-    "description": "charpente — a solid frame for your next product.",
-    "headline": "A solid frame for your next product",
-    "subheadline": "Rust backend, Vue frontend, shared types end to end. Replace this copy with your value proposition.",
-    "cta": "Get started"
+    "description": "charpente — Rust API, Vue SPA, Nuxt site: types generated end to end from the Rust code.",
+    "eyebrow": "Rust → OpenAPI → TypeScript",
+    "headline": "The load-bearing frame for your next product",
+    "subheadline": "An Axum API, a Vue 3 SPA, a Nuxt site — with types generated end to end from the Rust code. Decide once, inherit everywhere.",
+    "copy": "Copy the command",
+    "copied": "Copied",
+    "cta": "Open the app",
+    "ctaGithub": "View the code"
+  },
+  "flow": {
+    "title": "Types flow one way",
+    "body": "openapi.json is derived from the Rust code's utoipa annotations; Hey API generates the TypeScript client, the TanStack Query helpers and the Zod schemas from it. Nothing is written twice, so nothing can drift — CI's generated-check job fails on any diff.",
+    "kicker": "Rename a field in a Rust DTO: the Vue component using it goes red a few seconds later.",
+    "rustLabel": "apps/api — the source",
+    "specLabel": "derived, never edited",
+    "tsLabel": "packages/api-client — generated"
+  },
+  "decided": {
+    "title": "Decided once, inherited everywhere",
+    "intro": "The conventions that are expensive to settle mid-project are already settled — and enforced by CI, not by discipline.",
+    "errors": {
+      "title": "Errors you can switch on",
+      "body": "RFC 9457 problem+json with a stable code — generated client-side as an exhaustive TypeScript union."
+    },
+    "pagination": {
+      "title": "One pagination, everywhere",
+      "body": "Cursors over time-ordered UUIDv7 ids; every list returns items, next_cursor, has_more."
+    },
+    "auth": {
+      "title": "Server-side sessions",
+      "body": "argon2id with explicit parameters, sessions in Postgres, signed HttpOnly cookie, rotation at login, dummy verify against timing attacks."
+    },
+    "uploads": {
+      "title": "Files never travel through the API",
+      "body": "Presigned URLs to any S3: the API validates and records, the browser uploads directly."
+    },
+    "events": {
+      "title": "One wide event per request",
+      "body": "One structured JSON line per request, id returned to the client — the SPA reports its failures with the same id."
+    },
+    "permissions": {
+      "title": "Permissions, not ifs on roles",
+      "body": "Role::permissions in Rust, can() and <Can> in Vue. Adding a role means editing one function — not every guard."
+    }
+  },
+  "gates": {
+    "title": "CI carries the load",
+    "intro": "On every PR, in minutes:",
+    "nightly": "Every night, blocking no one:",
+    "pr": [
+      "pedantic clippy — unwrap and panic denied",
+      "tests with a transactional database per test",
+      "sqlx offline cache verified fresh",
+      "strict vue-tsc + vitest + knip",
+      "generated-client drift fails the build",
+      "gitleaks over full history",
+      "Playwright + axe against the production image"
+    ],
+    "night": [
+      "cargo-deny",
+      "cargo-mutants",
+      "Schemathesis on every endpoint",
+      "trivy on published images"
+    ]
+  },
+  "scope": {
+    "title": "Deliberately out of scope",
+    "intro": "Decided, not forgotten: every absence is an ADR, with its estimated cost to add.",
+    "colWhat": "Not included",
+    "colWhy": "Why that holds",
+    "colCost": "Cost to add",
+    "rows": [
+      {
+        "what": "Multi-tenancy / organizations",
+        "why": "Single-user products first",
+        "cost": "High — decide before writing the schema"
+      },
+      {
+        "what": "Realtime (SSE / WebSocket)",
+        "why": "Refetch-on-focus covers most cases",
+        "cost": "Low — additive route and composable"
+      },
+      {
+        "what": "Error-tracking SaaS",
+        "why": "Wide events already stream to stdout",
+        "cost": "Low — a sink change"
+      },
+      {
+        "what": "Site analytics",
+        "why": "Which is why there is no cookie banner",
+        "cost": "Low — but reopens the consent question"
+      },
+      {
+        "what": "Postgres backups",
+        "why": "Owned: add them before the first real deployment",
+        "cost": "Low to add, unbounded to skip"
+      }
+    ]
+  },
+  "closing": {
+    "title": "One project, one command",
+    "body": "And later, copier update pulls starter improvements into your project — a three-way merge that keeps your choices."
+  },
+  "error": {
+    "notFound": "This page does not exist.",
+    "other": "Something went wrong.",
+    "home": "Back to the home page"
   },
   "legal": {
     "title": "Legal notice",
     "placeholder": "Publisher, hosting provider, contact — fill in before going live.",
     "privacyTitle": "Privacy",
-    "privacyPlaceholder": "This site only uses strictly necessary cookies (session). No analytics, no consent banner required."
+    "privacyPlaceholder": "This site only uses strictly necessary cookies (language, session). No analytics, no consent banner required."
   }
 }

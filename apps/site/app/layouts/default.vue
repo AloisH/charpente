@@ -4,6 +4,7 @@ const localePath = useLocalePath();
 const switchLocalePath = useSwitchLocalePath();
 const otherLocale = computed(() => (locale.value === "fr" ? "en" : "fr"));
 const appUrl = useRuntimeConfig().public.appUrl;
+const githubUrl = "https://github.com/AloisH/charpente";
 </script>
 
 <template>
@@ -15,10 +16,19 @@ const appUrl = useRuntimeConfig().public.appUrl;
       >
         <NuxtLink :to="localePath('/')" class="text-lg font-semibold"> charpente </NuxtLink>
         <div class="flex items-center gap-6 text-sm">
+          <a
+            :href="githubUrl"
+            rel="noopener"
+            class="hidden text-muted-foreground hover:underline sm:inline"
+            :aria-label="t('nav.github')"
+          >
+            GitHub
+          </a>
           <a :href="appUrl" class="font-medium hover:underline">{{ t("nav.app") }}</a>
           <NuxtLink
             :to="switchLocalePath(otherLocale)"
             class="text-muted-foreground hover:underline"
+            :aria-label="t('nav.switchLocale')"
           >
             {{ otherLocale.toUpperCase() }}
           </NuxtLink>

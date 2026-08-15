@@ -2,19 +2,124 @@
   "nav": {
     "main": "Navigation principale",
     "app": "Ouvrir l'application",
-    "legal": "Mentions légales"
+    "github": "Code source sur GitHub",
+    "legal": "Mentions légales",
+    "switchLocale": "English"
   },
   "home": {
     "title": "Accueil",
-    "description": "charpente — un socle solide pour votre prochain produit.",
-    "headline": "Un socle solide pour votre prochain produit",
-    "subheadline": "Backend Rust, frontend Vue, types partagés de bout en bout. Remplacez ce texte par votre proposition de valeur.",
-    "cta": "Commencer"
+    "description": "charpente — API Rust, SPA Vue, vitrine Nuxt : des types générés de bout en bout depuis le code Rust.",
+    "eyebrow": "Rust → OpenAPI → TypeScript",
+    "headline": "L'ossature de votre prochain produit",
+    "subheadline": "Une API Axum, une SPA Vue 3, une vitrine Nuxt — et des types générés de bout en bout depuis le code Rust. Décidez une fois, héritez partout.",
+    "copy": "Copier la commande",
+    "copied": "Copié",
+    "cta": "Ouvrir l'application",
+    "ctaGithub": "Voir le code"
+  },
+  "flow": {
+    "title": "Les types coulent dans un seul sens",
+    "body": "openapi.json est dérivé des annotations utoipa du code Rust ; Hey API en génère le client TypeScript, les helpers TanStack Query et les schémas Zod. Rien n'est écrit deux fois, donc rien ne peut dériver — le job generated-check de la CI échoue au moindre écart.",
+    "kicker": "Renommez un champ d'un DTO Rust : le composant Vue qui l'utilise passe au rouge quelques secondes plus tard.",
+    "rustLabel": "apps/api — la source",
+    "specLabel": "dérivé, jamais édité",
+    "tsLabel": "packages/api-client — généré"
+  },
+  "decided": {
+    "title": "Décidé une fois, hérité partout",
+    "intro": "Les conventions qui coûtent cher à trancher en cours de route sont déjà tranchées — et appliquées par la CI, pas par la discipline.",
+    "errors": {
+      "title": "Des erreurs sur lesquelles on peut switcher",
+      "body": "RFC 9457 problem+json avec un code stable — généré côté client en union TypeScript exhaustive."
+    },
+    "pagination": {
+      "title": "Une seule pagination",
+      "body": "Curseurs sur des ids UUIDv7 ordonnés dans le temps ; chaque liste renvoie items, next_cursor, has_more."
+    },
+    "auth": {
+      "title": "Sessions côté serveur",
+      "body": "argon2id à paramètres explicites, sessions en Postgres, cookie signé HttpOnly, rotation au login, vérification factice contre les attaques temporelles."
+    },
+    "uploads": {
+      "title": "Les fichiers ne passent jamais par l'API",
+      "body": "URLs présignées vers n'importe quel S3 : l'API valide et enregistre, le navigateur téléverse directement."
+    },
+    "events": {
+      "title": "Un événement large par requête",
+      "body": "Une ligne JSON structurée par requête, id renvoyé au client — la SPA rapporte ses échecs avec le même id."
+    },
+    "permissions": {
+      "title": "Des permissions, pas des ifs sur les rôles",
+      "body": "Role::permissions en Rust, can() et <Can> côté Vue. Ajouter un rôle, c'est éditer une fonction — pas chaque garde."
+    }
+  },
+  "gates": {
+    "title": "La CI porte la charge",
+    "intro": "Sur chaque PR, en quelques minutes :",
+    "nightly": "Chaque nuit, sans bloquer personne :",
+    "pr": [
+      "clippy pédantique — unwrap et panic interdits",
+      "tests avec base transactionnelle par test",
+      "cache sqlx vérifié à jour",
+      "vue-tsc strict + vitest + knip",
+      "dérive du client généré = échec",
+      "gitleaks sur tout l'historique",
+      "Playwright + axe contre l'image de prod"
+    ],
+    "night": [
+      "cargo-deny",
+      "cargo-mutants",
+      "Schemathesis sur chaque endpoint",
+      "trivy sur les images publiées"
+    ]
+  },
+  "scope": {
+    "title": "Volontairement hors périmètre",
+    "intro": "Décidé, pas oublié : chaque absence est un ADR, avec son coût d'ajout estimé.",
+    "colWhat": "Non inclus",
+    "colWhy": "Pourquoi c'est tenable",
+    "colCost": "Coût d'ajout",
+    "rows": [
+      {
+        "what": "Multi-tenancy / organisations",
+        "why": "Produits mono-utilisateur d'abord",
+        "cost": "Élevé — à décider avant d'écrire le schéma"
+      },
+      {
+        "what": "Temps réel (SSE / WebSocket)",
+        "why": "Le refetch au focus couvre la plupart des cas",
+        "cost": "Faible — route et composable additifs"
+      },
+      {
+        "what": "SaaS de suivi d'erreurs",
+        "why": "Les événements larges sortent déjà sur stdout",
+        "cost": "Faible — un changement de destination"
+      },
+      {
+        "what": "Analytics du site",
+        "why": "C'est pourquoi il n'y a pas de bannière cookies",
+        "cost": "Faible — mais rouvre la question du consentement"
+      },
+      {
+        "what": "Sauvegardes Postgres",
+        "why": "Assumé : à ajouter avant le premier vrai déploiement",
+        "cost": "Faible à ajouter, illimité à ignorer"
+      }
+    ]
+  },
+  "closing": {
+    "title": "Un projet, une commande",
+    "body": "Et plus tard, copier update rapporte les améliorations du starter dans votre projet — fusion à trois voies, vos choix conservés."
+  },
+  "error": {
+    "notFound": "Cette page n'existe pas.",
+    "other": "Une erreur est survenue.",
+    "home": "Retour à l'accueil"
   },
   "legal": {
     "title": "Mentions légales",
     "placeholder": "Éditeur, hébergeur, contact — à compléter avant mise en ligne.",
     "privacyTitle": "Confidentialité",
-    "privacyPlaceholder": "Ce site n'utilise que des cookies strictement nécessaires (session). Pas d'analytics, pas de bannière de consentement requise."
+    "privacyPlaceholder": "Ce site n'utilise que des cookies strictement nécessaires (langue, session). Pas d'analytics, pas de bannière de consentement requise."
   }
 }

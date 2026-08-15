@@ -8,7 +8,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <section class="prose mx-auto w-full max-w-3xl px-6 py-16">
+  <section class="mx-auto w-full max-w-3xl px-6 py-16">
     <h1 class="text-3xl font-bold">{{ t("legal.title") }}</h1>
     <p class="mt-6 text-muted-foreground">{{ t("legal.placeholder") }}</p>
 
