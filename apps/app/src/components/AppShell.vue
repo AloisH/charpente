@@ -206,9 +206,12 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
       </SidebarContent>
 
       <SidebarFooter>
-        <Alert v-if="isDev" class="group-data-[collapsible=icon]:hidden">
-          <TriangleAlert />
-          <AlertTitle>{{ t("common.devBanner") }}</AlertTitle>
+        <Alert
+          v-if="isDev"
+          class="border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-700 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-400 group-data-[collapsible=icon]:hidden"
+        >
+          <TriangleAlert class="size-4" />
+          <AlertTitle class="text-xs font-medium">{{ t("common.devBanner") }}</AlertTitle>
         </Alert>
         <NavUser />
       </SidebarFooter>
