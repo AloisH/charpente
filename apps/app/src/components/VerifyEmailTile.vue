@@ -43,7 +43,7 @@ const resend = useMutation({
       <span class="truncate text-[11px] text-muted-foreground">{{ user.email }}</span>
     </div>
     <Button
-      variant="ghost"
+      variant="outline"
       size="icon"
       class="size-7 shrink-0 group-data-[collapsible=icon]:hidden"
       :aria-label="t('verifyEmail.resend')"
