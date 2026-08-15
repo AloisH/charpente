@@ -164,6 +164,21 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
               </RouterLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              :tooltip="t('command.search')"
+              class="border border-input bg-background text-muted-foreground hover:bg-accent"
+              @click="openPalette()"
+            >
+              <Search />
+              <span class="flex-1 text-left">{{ t("command.search") }}</span>
+              <kbd
+                class="pointer-events-none rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium group-data-[collapsible=icon]:hidden"
+              >
+                ⌘K
+              </kbd>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
@@ -194,19 +209,6 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
     <SidebarInset>
       <header class="flex h-14 items-center gap-3 border-b border-border px-4">
         <SidebarTrigger />
-        <button
-          type="button"
-          class="inline-flex h-8 w-full max-w-xs items-center gap-2 rounded-md border border-input bg-background px-3 text-sm text-muted-foreground transition-colors hover:bg-accent"
-          @click="openPalette()"
-        >
-          <Search class="size-4" />
-          <span class="flex-1 text-left">{{ t("command.search") }}</span>
-          <kbd
-            class="pointer-events-none rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium"
-          >
-            ⌘K
-          </kbd>
-        </button>
         <div class="ml-auto text-sm text-muted-foreground">
           {{ user?.display_name }}
         </div>
