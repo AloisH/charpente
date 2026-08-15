@@ -28,10 +28,8 @@ function formatSize(bytes: number): string {
 </script>
 
 <template>
-  <AppShell>
-    <h1 class="text-2xl font-semibold">{{ t("uploads.title") }}</h1>
-
-    <div class="mt-6 max-w-2xl space-y-6">
+  <AppShell :title="t('uploads.title')">
+    <div class="max-w-2xl space-y-6">
       <FileUpload />
 
       <p v-if="uploads.data.value?.items.length === 0" class="text-muted-foreground">

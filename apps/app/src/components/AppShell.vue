@@ -14,7 +14,7 @@ import {
   Sun,
   Users,
 } from "@lucide/vue";
-import { computed } from "vue";
+import { computed, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -37,14 +37,25 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 import { useAuth, type Permission } from "@/composables/useAuth";
 import { formatShortcut, useShortcut } from "@/composables/useShortcut";
 import { openPalette, registerCommands } from "@/lib/command-registry";
 import { useUiStore } from "@/stores/ui";
 
+const props = defineProps<{
+  /** Page title, shown in the header bar and mirrored into document.title. */
+  title?: string;
+}>();
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+
+watchEffect(() => {
+  document.title =
+    props.title === undefined ? t("common.appName") : `${props.title} · ${t("common.appName")}`;
+});
 // Statically false in production builds — the banner never ships.
 const isDev = import.meta.env.DEV;
 const { user, can, logout } = useAuth();
@@ -239,6 +250,10 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
     <SidebarInset>
       <header class="flex h-14 items-center gap-3 border-b border-border px-4">
         <SidebarTrigger />
+        <template v-if="title !== undefined">
+          <Separator orientation="vertical" class="!h-4" />
+          <h1 class="text-base font-semibold">{{ title }}</h1>
+        </template>
         <div class="ml-auto text-sm text-muted-foreground">
           {{ user?.display_name }}
         </div>

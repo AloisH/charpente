@@ -35,10 +35,8 @@ function toggleRole(user: UserDto): void {
 </script>
 
 <template>
-  <AppShell>
-    <h1 class="text-2xl font-semibold">{{ t("admin.usersTitle") }}</h1>
-
-    <div class="mt-6 overflow-x-auto rounded-lg border border-border">
+  <AppShell :title="t('admin.usersTitle')">
+    <div class="overflow-x-auto rounded-lg border border-border">
       <table class="w-full text-left text-sm">
         <thead class="border-b border-border bg-muted/50">
           <tr>

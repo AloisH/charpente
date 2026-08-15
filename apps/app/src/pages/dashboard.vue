@@ -31,9 +31,8 @@ registerCommands({
 </script>
 
 <template>
-  <AppShell>
-    <h1 class="text-2xl font-semibold">{{ t("dashboard.title") }}</h1>
-    <Card class="mt-6">
+  <AppShell :title="t('dashboard.title')">
+    <Card>
       <CardHeader>
         <CardTitle>
           {{ t("dashboard.welcome", { name: user?.display_name ?? "…" }) }}
