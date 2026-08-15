@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Loader2 } from "@lucide/vue";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { defineAsyncComponent } from "vue";
 import { useForm } from "vee-validate";
@@ -84,6 +85,7 @@ const DevQuickLogin = import.meta.env.DEV
             </p>
           </div>
           <Button type="submit" class="w-full" :disabled="login.isPending.value">
+            <Loader2 v-if="login.isPending.value" class="size-4 animate-spin" />
             {{ t("auth.login") }}
           </Button>
         </form>

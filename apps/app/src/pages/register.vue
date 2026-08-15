@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Loader2 } from "@lucide/vue";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useForm } from "vee-validate";
 import { toast } from "vue-sonner";
@@ -87,6 +88,7 @@ const onSubmit = handleSubmit((values) => {
             </p>
           </div>
           <Button type="submit" class="w-full" :disabled="register.isPending.value">
+            <Loader2 v-if="register.isPending.value" class="size-4 animate-spin" />
             {{ t("auth.register") }}
           </Button>
         </form>
