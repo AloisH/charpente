@@ -51,7 +51,7 @@ const stop = useMutation({
       <span class="truncate text-[11px] text-muted-foreground">{{ user.display_name }}</span>
     </div>
     <Button
-      variant="outline"
+      variant="ghost"
       size="icon"
       class="size-7 shrink-0 group-data-[collapsible=icon]:hidden"
       :aria-label="t('impersonation.stop')"
