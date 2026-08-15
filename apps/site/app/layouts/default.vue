@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const localePath = useLocalePath();
 const switchLocalePath = useSwitchLocalePath();
-const { locale } = useI18n();
 const otherLocale = computed(() => (locale.value === "fr" ? "en" : "fr"));
+const appUrl = useRuntimeConfig().public.appUrl;
 </script>
 
 <template>
@@ -15,7 +15,7 @@ const otherLocale = computed(() => (locale.value === "fr" ? "en" : "fr"));
       >
         <NuxtLink :to="localePath('/')" class="text-lg font-semibold"> charpente </NuxtLink>
         <div class="flex items-center gap-6 text-sm">
-          <a href="/app" class="font-medium hover:underline">{{ t("nav.app") }}</a>
+          <a :href="appUrl" class="font-medium hover:underline">{{ t("nav.app") }}</a>
           <NuxtLink
             :to="switchLocalePath(otherLocale)"
             class="text-muted-foreground hover:underline"

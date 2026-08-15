@@ -16,6 +16,14 @@ export default defineNuxtConfig({
     name: "charpente",
   },
 
+  runtimeConfig: {
+    public: {
+      // Where "Open the app" points: the Vite dev server locally, the app
+      // domain in prod (override via NUXT_PUBLIC_APP_URL).
+      appUrl: "http://localhost:5173",
+    },
+  },
+
   i18n: {
     baseUrl: "https://example.com",
     defaultLocale: "fr",

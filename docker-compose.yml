@@ -42,6 +42,7 @@ services:
     image: ghcr.io/${GHCR_OWNER:?}/charpente-site:${SITE_TAG:-latest}
     environment:
       NUXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN:?}
+      NUXT_PUBLIC_APP_URL: https://${APP_DOMAIN:?}
     restart: unless-stopped
 
   caddy:

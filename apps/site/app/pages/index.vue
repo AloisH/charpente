@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { t } = useI18n();
+const appUrl = useRuntimeConfig().public.appUrl;
 
 useSeoMeta({
   title: () => t("home.title"),
@@ -19,7 +20,7 @@ useSeoMeta({
     </p>
     <div class="mt-10">
       <a
-        href="/app"
+        :href="appUrl"
         class="inline-flex items-center rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:opacity-90"
       >
         {{ t("home.cta") }}
