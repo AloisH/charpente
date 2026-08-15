@@ -1,0 +1,94 @@
+name: Nightly
+
+# Slow, high-signal gates that never block a PR.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+env:
+  DATABASE_URL: postgres://charpente:charpente@localhost:5432/charpente
+
+jobs:
+  deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+      - run: cargo deny check
+
+  mutants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: charpente
+          POSTGRES_PASSWORD: charpente
+          POSTGRES_DB: charpente
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U charpente"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-mutants
+      - run: cargo mutants --workspace --timeout 120 -- --all-features
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mutants-report
+          path: mutants.out/
+          retention-days: 14
+
+  schemathesis:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: charpente
+          POSTGRES_PASSWORD: charpente
+          POSTGRES_DB: charpente
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U charpente"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Start the API
+        run: |
+          cargo build -p api
+          SESSION_KEY=$(openssl rand -base64 64 | tr -d '\n') \
+          APP_ENV=dev S3_ENDPOINT=http://localhost:9000 S3_BUCKET=test \
+          S3_ACCESS_KEY=test S3_SECRET_KEY=test \
+          cargo run -p api & \
+          timeout 60 sh -c 'until curl -sf http://localhost:8080/health/ready; do sleep 1; done'
+      - name: Fuzz every endpoint from the spec
+        run: |
+          pipx install schemathesis
+          schemathesis run openapi.json --url http://localhost:8080 --checks all || true
+
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan latest published images
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/charpente-app:latest
+          severity: HIGH,CRITICAL
+          exit-code: "0"

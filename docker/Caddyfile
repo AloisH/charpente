@@ -1,0 +1,12 @@
+# Automatic TLS for both domains. The API lives same-origin under the app
+# domain (/api/*), so no CORS in production.
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy site:3000
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:8080
+}

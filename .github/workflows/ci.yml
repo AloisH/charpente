@@ -1,0 +1,169 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgres://charpente:charpente@localhost:5432/charpente
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec oxfmt --check .
+      - run: pnpm exec oxlint --deny-warnings
+      - run: pnpm --filter @charpente/app typecheck
+      - run: pnpm --filter @charpente/app exec vitest run --coverage
+      - run: pnpm exec knip
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # nuxt build catches SSR-only breakage that lint/typecheck miss
+      - run: pnpm --filter @charpente/site build
+
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: charpente
+          POSTGRES_PASSWORD: charpente
+          POSTGRES_DB: charpente
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U charpente"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: Verify committed sqlx offline data is current
+        run: |
+          cargo install sqlx-cli --no-default-features --features rustls,postgres --locked
+          cargo sqlx migrate run --source apps/api/migrations
+          cargo sqlx prepare --check --workspace -- --all-features
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
+      - run: cargo nextest run --workspace --all-features
+      - run: cargo test --doc --workspace --all-features
+
+  generated-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: Swatinem/rust-cache@v2
+      - run: pnpm install --frozen-lockfile
+      - name: Re-dump the spec and regenerate the client
+        run: |
+          cargo run -p api -- dump-openapi
+          pnpm exec openapi-ts
+      - name: Fail on drift
+        run: git diff --exit-code -- openapi.json packages/api-client/src/generated
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the production app image (with test endpoints)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/app.Dockerfile
+          load: true
+          tags: charpente-app:e2e
+          build-args: |
+            CARGO_FEATURES=embed-spa,test-endpoints
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Start the stack
+        run: docker compose -f e2e/docker-compose.e2e.yml up -d --wait
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter e2e exec playwright install --with-deps chromium
+      - run: pnpm --filter e2e test
+        env:
+          E2E_BASE_URL: http://localhost:8080
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7
+
+  # The starter is a Copier template: render it and make sure the rename task
+  # left no trace of the template identity, then typecheck the rendered app.
+  template-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Render the template
+        run: |
+          pipx install copier
+          copier copy --vcs-ref HEAD --trust --defaults \
+            --data project_name=renderling --data github_owner=render-org \
+            . /tmp/renderling
+      - name: No template identity may survive the rename
+        run: |
+          if grep -ri "charpente" /tmp/renderling --exclude-dir=.git --exclude=.copier-answers.yml -l; then
+            echo "::error::rendered project still references the template name"
+            exit 1
+          fi
+      - name: Rendered app typechecks
+        run: |
+          cd /tmp/renderling
+          pnpm install --no-frozen-lockfile
+          pnpm --filter @renderling/app typecheck
+          pnpm --filter @renderling/app test
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

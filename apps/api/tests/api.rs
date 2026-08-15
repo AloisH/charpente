@@ -30,6 +30,7 @@ fn test_config() -> Config {
         // 64 zero bytes, base64-encoded — fine for tests.
         session_key: base64_key(),
         s3_endpoint: "http://storage.test".into(),
+        s3_public_endpoint: None,
         s3_region: "us-east-1".into(),
         s3_bucket: "test".into(),
         s3_access_key: "test".into(),

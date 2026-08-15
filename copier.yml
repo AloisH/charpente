@@ -1,0 +1,53 @@
+# charpente is distributed as a Copier template:
+#
+#   copier copy gh:AloisH/charpente my-project
+#
+# and, crucially, later improvements to the starter reach already-generated
+# projects with a three-way merge:
+#
+#   cd my-project && copier update
+#
+# Design choice: the template repo stays a plain, runnable project (its own CI
+# runs the full suite on every change — no silent rot). Instead of sprinkling
+# {{ placeholders }} through every file, a post-copy task renames the project
+# (scripts/copier-rename.sh). `copier update` re-runs it, so updates stay
+# consistent.
+
+project_name:
+  type: str
+  help: "Project slug (lowercase, used for packages, images, db name)"
+  default: my-project
+  validator: >-
+    {% if not (project_name | regex_search('^[a-z][a-z0-9-]+$')) %}
+    project_name must be lowercase letters, digits and dashes, starting with a letter
+    {% endif %}
+
+github_owner:
+  type: str
+  help: "GitHub user/org that owns the repo (GHCR image namespace)"
+  default: your-github-name
+
+_exclude:
+  - ".git"
+  - "node_modules"
+  - "target"
+  - "dist"
+  - ".nuxt"
+  - ".output"
+  - ".env"
+  - "CHANGELOG.md"
+
+_tasks:
+  - "sh scripts/copier-rename.sh '{{ project_name }}' '{{ github_owner }}'"
+
+_message_after_copy: |
+  {{ project_name }} is ready.
+
+    cd {{ _copier_conf.dst_path }}
+    mise install        # pinned node / pnpm / rust / just
+    cp .env.example .env  (then set SESSION_KEY: openssl rand -base64 64)
+    pnpm install
+    just infra && just migrate && just seed
+    just dev
+
+  Later, pull starter improvements with:  copier update

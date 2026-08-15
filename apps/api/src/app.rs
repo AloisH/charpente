@@ -58,11 +58,12 @@ pub async fn build(state: AppState) -> anyhow::Result<Router> {
     let auth_layer =
         AuthManagerLayerBuilder::new(Backend::new(state.pool.clone()), session_layer).build();
 
-    // Per-IP rate limit across the API (auth routes included).
+    // Per-IP rate limit on /api only — static assets and health checks must
+    // never eat the budget.
     let governor_config = Arc::new(
         GovernorConfigBuilder::default()
-            .per_second(2)
-            .burst_size(60)
+            .per_second(5)
+            .burst_size(120)
             .finish()
             .context("invalid rate-limit configuration")?,
     );
@@ -70,6 +71,7 @@ pub async fn build(state: AppState) -> anyhow::Result<Router> {
     let (api_router, api_doc) = OpenApiRouter::with_openapi(openapi::document())
         .nest("/api/v1", routes::api_v1())
         .split_for_parts();
+    let api_router = api_router.layer(GovernorLayer::new(governor_config));
 
     let mut router = api_router.merge(routes::health::router());
 
@@ -87,7 +89,6 @@ pub async fn build(state: AppState) -> anyhow::Result<Router> {
     let mut router = router
         .fallback(static_files::fallback)
         .layer(auth_layer)
-        .layer(GovernorLayer::new(governor_config))
         .layer(middleware::from_fn(telemetry::wide_event))
         .layer(TimeoutLayer::with_status_code(
             StatusCode::REQUEST_TIMEOUT,
@@ -109,7 +110,7 @@ pub async fn build(state: AppState) -> anyhow::Result<Router> {
             header::CONTENT_SECURITY_POLICY,
             // Hashed-asset SPA: everything same-origin except direct-to-storage
             // uploads (connect-src) and data/blob images for previews.
-            csp_header(&config.s3_endpoint)?,
+            csp_header(config.s3_browser_endpoint())?,
         ));
 
     // In dev the SPA usually reaches the API through the Vite proxy

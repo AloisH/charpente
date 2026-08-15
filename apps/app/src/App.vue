@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Toaster } from "@/components/ui/sonner";
+import { VueQueryDevtools } from "@tanstack/vue-query-devtools";
+
 import AppErrorBoundary from "@/components/AppErrorBoundary.vue";
+import { Toaster } from "@/components/ui/sonner";
 </script>
 
 <template>
@@ -8,4 +10,5 @@ import AppErrorBoundary from "@/components/AppErrorBoundary.vue";
     <RouterView />
   </AppErrorBoundary>
   <Toaster position="top-right" />
+  <VueQueryDevtools />
 </template>

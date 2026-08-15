@@ -24,29 +24,37 @@ pub trait Storage: Send + Sync {
 }
 
 pub struct S3Storage {
+    /// Talks to storage over the internal network (head/delete).
     client: aws_sdk_s3::Client,
+    /// Signs URLs against the endpoint browsers can actually reach — inside
+    /// compose those are different hosts (`rustfs:9000` vs `localhost:9000`).
+    presign_client: aws_sdk_s3::Client,
     bucket: String,
 }
 
 impl S3Storage {
     pub fn from_config(config: &Config) -> Self {
-        let credentials = Credentials::new(
-            config.s3_access_key.clone(),
-            config.s3_secret_key.clone(),
-            None,
-            None,
-            "static",
-        );
-        let s3_config = aws_sdk_s3::config::Builder::new()
-            .behavior_version(BehaviorVersion::latest())
-            .region(Region::new(config.s3_region.clone()))
-            .endpoint_url(config.s3_endpoint.clone())
-            .credentials_provider(credentials)
-            // Bucket-in-path addressing, required by RustFS/MinIO-style endpoints.
-            .force_path_style(true)
-            .build();
+        let client_for = |endpoint: &str| {
+            let credentials = Credentials::new(
+                config.s3_access_key.clone(),
+                config.s3_secret_key.clone(),
+                None,
+                None,
+                "static",
+            );
+            let s3_config = aws_sdk_s3::config::Builder::new()
+                .behavior_version(BehaviorVersion::latest())
+                .region(Region::new(config.s3_region.clone()))
+                .endpoint_url(endpoint.to_owned())
+                .credentials_provider(credentials)
+                // Bucket-in-path addressing, required by RustFS/MinIO-style endpoints.
+                .force_path_style(true)
+                .build();
+            aws_sdk_s3::Client::from_conf(s3_config)
+        };
         Self {
-            client: aws_sdk_s3::Client::from_conf(s3_config),
+            client: client_for(&config.s3_endpoint),
+            presign_client: client_for(config.s3_browser_endpoint()),
             bucket: config.s3_bucket.clone(),
         }
     }
@@ -61,7 +69,7 @@ impl S3Storage {
 impl Storage for S3Storage {
     async fn presign_put(&self, key: &str, content_type: &str) -> anyhow::Result<String> {
         let request = self
-            .client
+            .presign_client
             .put_object()
             .bucket(&self.bucket)
             .key(key)
@@ -73,7 +81,7 @@ impl Storage for S3Storage {
 
     async fn presign_get(&self, key: &str) -> anyhow::Result<String> {
         let request = self
-            .client
+            .presign_client
             .get_object()
             .bucket(&self.bucket)
             .key(key)

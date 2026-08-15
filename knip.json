@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "ignore": ["packages/api-client/src/generated/**", "apps/app/src/components/ui/**"],
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.mjs"],
+      "ignoreDependencies": ["concurrently"]
+    },
+    "apps/app": {
+      "entry": ["src/pages/**/*.vue"],
+      "project": ["src/**/*.{ts,vue}"],
+      "ignoreDependencies": ["@charpente/tokens", "tailwindcss", "tw-animate-css"]
+    },
+    "apps/site": {
+      "ignoreDependencies": ["vue", "vue-tsc"]
+    },
+    "packages/api-client": {},
+    "packages/tokens": {},
+    "e2e": {
+      "entry": ["tests/**/*.spec.ts"]
+    }
+  }
+}

@@ -29,7 +29,7 @@ services:
     volumes:
       - rustfsdata:/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9000/ || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health || exit 1"]
       interval: 3s
       timeout: 3s
       retries: 15

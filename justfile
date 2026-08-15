@@ -6,6 +6,12 @@ set dotenv-load := true
 default:
     @just --list
 
+# One-time machine setup: cargo tools the dev loop needs
+setup:
+    cargo install cargo-watch
+    cargo install sqlx-cli --no-default-features --features rustls,postgres
+    pnpm install
+
 # ── Dev ──────────────────────────────────────────────────────────
 
 # Start local infra (postgres, rustfs, adminer, mailpit)

@@ -1,0 +1,13 @@
+.git
+target
+node_modules
+**/node_modules
+**/dist
+!apps/app/dist
+**/.nuxt
+**/.output
+**/coverage
+.env
+.env.*
+playwright-report
+test-results

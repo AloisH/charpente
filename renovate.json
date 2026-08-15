@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits"],
+  "schedule": ["before 6am on monday"],
+  "packageRules": [
+    {
+      "description": "oxfmt is pre-1.0 and pinned exactly — bump deliberately",
+      "matchPackageNames": ["oxfmt"],
+      "rangeStrategy": "pin"
+    },
+    {
+      "description": "Group non-major JS updates",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "js non-major"
+    },
+    {
+      "description": "Group non-major Rust updates",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "rust non-major"
+    }
+  ],
+  "lockFileMaintenance": { "enabled": true, "schedule": ["before 6am on monday"] }
+}

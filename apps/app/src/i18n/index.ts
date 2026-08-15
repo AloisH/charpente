@@ -3,8 +3,6 @@ import { createI18n } from "vue-i18n";
 import en from "@/i18n/locales/en.json";
 import fr from "@/i18n/locales/fr.json";
 
-export type MessageSchema = typeof en;
-
 const STORAGE_KEY = "charpente.locale";
 
 function initialLocale(): "fr" | "en" {

@@ -33,6 +33,11 @@ pub struct Config {
     /// Base64-encoded cookie signing key, at least 64 bytes once decoded.
     pub session_key: String,
     pub s3_endpoint: String,
+    /// Endpoint browsers reach for presigned URLs, when it differs from
+    /// `s3_endpoint` (e.g. the API talks to `http://rustfs:9000` inside the
+    /// compose network while browsers hit `https://storage.example.com`).
+    #[serde(default)]
+    pub s3_public_endpoint: Option<String>,
     #[serde(default = "default_region")]
     pub s3_region: String,
     pub s3_bucket: String,
@@ -54,6 +59,15 @@ fn default_port() -> u16 {
 
 fn default_region() -> String {
     "us-east-1".to_owned()
+}
+
+impl Config {
+    /// The storage origin browsers connect to (presigned URLs, CSP).
+    pub fn s3_browser_endpoint(&self) -> &str {
+        self.s3_public_endpoint
+            .as_deref()
+            .unwrap_or(&self.s3_endpoint)
+    }
 }
 
 impl Config {
