@@ -207,9 +207,9 @@ if (isDev) {
               <RouterLink to="/dashboard">
                 <Avatar class="size-8 shrink-0 rounded-lg">
                   <AvatarFallback
-                    class="rounded-lg bg-sidebar-primary text-base leading-none font-bold text-sidebar-primary-foreground select-none"
+                    class="rounded-lg bg-sidebar-primary text-base leading-none font-bold text-sidebar-primary-foreground select-none [&>*]:translate-x-[0.5px]"
                   >
-                    C
+                    <span>C</span>
                   </AvatarFallback>
                 </Avatar>
                 <span class="truncate font-semibold">{{ t("common.appName") }}</span>
@@ -219,7 +219,7 @@ if (isDev) {
           <SidebarMenuItem class="mt-1.5">
             <SidebarMenuButton
               :tooltip="t('command.search')"
-              class="border border-input bg-background text-muted-foreground hover:bg-accent"
+              class="border border-input bg-background text-muted-foreground hover:bg-accent group-data-[collapsible=icon]:p-[7px]!"
               @click="openPalette()"
             >
               <Search />
