@@ -1,6 +1,7 @@
 {
   "ignorePatterns": [
     "openapi.json",
+    ".sqlx/**",
     "**/dist/**",
     "**/.output/**",
     "**/.nuxt/**",

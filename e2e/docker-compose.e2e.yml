@@ -36,7 +36,9 @@ services:
     entrypoint: >
       /bin/sh -c "
       mc alias set e2e http://rustfs:9000 rustfsadmin rustfsadmin &&
-      mc mb --ignore-existing e2e/charpente
+      mc mb --ignore-existing e2e/charpente &&
+      printf '<CORSConfiguration><CORSRule><AllowedOrigin>*</AllowedOrigin><AllowedMethod>GET</AllowedMethod><AllowedMethod>PUT</AllowedMethod><AllowedMethod>HEAD</AllowedMethod><AllowedHeader>*</AllowedHeader><ExposeHeader>ETag</ExposeHeader></CORSRule></CORSConfiguration>' > /tmp/cors.xml &&
+      mc cors set e2e/charpente /tmp/cors.xml
       "
 
   app:

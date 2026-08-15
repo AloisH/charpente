@@ -59,7 +59,7 @@ migrate-new name:
 
 # Refresh committed offline query data (.sqlx/) — run after changing queries
 sqlx-prepare:
-    cargo sqlx prepare --workspace -- --all-targets
+    cargo sqlx prepare --workspace -- --all-targets --all-features
 
 seed:
     cargo run -p api -- seed

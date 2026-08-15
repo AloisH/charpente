@@ -9,9 +9,6 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  DATABASE_URL: postgres://charpente:charpente@localhost:5432/charpente
-
 jobs:
   app:
     runs-on: ubuntu-latest
@@ -44,6 +41,8 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://charpente:charpente@localhost:5432/charpente
     services:
       postgres:
         image: postgres:17
@@ -61,13 +60,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
+      # --all-features turns on embed-spa, whose RustEmbed derive requires the
+      # SPA dist folder to exist at compile time (empty is fine outside prod).
+      - run: mkdir -p apps/app/dist
       - run: cargo fmt --all --check
+      # Offline: the DB isn't migrated yet at this point; the committed .sqlx
+      # cache is what the macros should use, and its freshness is enforced by
+      # `cargo sqlx prepare --check` below.
       - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        env:
+          SQLX_OFFLINE: "1"
       - name: Verify committed sqlx offline data is current
         run: |
           cargo install sqlx-cli --no-default-features --features rustls,postgres --locked
           cargo sqlx migrate run --source apps/api/migrations
-          cargo sqlx prepare --check --workspace -- --all-features
+          cargo sqlx prepare --check --workspace -- --all-targets --all-features
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-nextest
@@ -76,6 +83,10 @@ jobs:
 
   generated-check:
     runs-on: ubuntu-latest
+    env:
+      # No database in this job — compile the sqlx macros from the committed
+      # .sqlx cache (dump-openapi itself never touches the DB at runtime).
+      SQLX_OFFLINE: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

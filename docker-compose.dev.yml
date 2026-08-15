@@ -35,7 +35,9 @@ services:
       timeout: 3s
       retries: 15
 
-  # Creates the dev bucket on first run, then exits.
+  # Creates the dev bucket on first run and opens CORS on it (the browser PUTs
+  # to presigned URLs cross-origin; newer RustFS builds block the preflight
+  # unless the bucket has a CORS config), then exits.
   rustfs-init:
     image: minio/mc:latest
     depends_on:
@@ -44,7 +46,9 @@ services:
     entrypoint: >
       /bin/sh -c "
       mc alias set dev http://rustfs:9000 rustfsadmin rustfsadmin &&
-      mc mb --ignore-existing dev/charpente
+      mc mb --ignore-existing dev/charpente &&
+      printf '<CORSConfiguration><CORSRule><AllowedOrigin>*</AllowedOrigin><AllowedMethod>GET</AllowedMethod><AllowedMethod>PUT</AllowedMethod><AllowedMethod>HEAD</AllowedMethod><AllowedHeader>*</AllowedHeader><ExposeHeader>ETag</ExposeHeader></CORSRule></CORSConfiguration>' > /tmp/cors.xml &&
+      mc cors set dev/charpente /tmp/cors.xml
       "
 
   adminer:

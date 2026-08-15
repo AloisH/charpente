@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "DELETE FROM users WHERE id = $1",
+  "query": "UPDATE users SET role = 'admin' WHERE id = $1",
   "describe": {
     "columns": [],
     "parameters": {
@@ -10,5 +10,5 @@
     },
     "nullable": []
   },
-  "hash": "50293c2e54af11d4c2a553e29b671cef087a159c6ee7182d8ca929ecb748f3b7"
+  "hash": "92e2b5e6df829c7f4ba955e76d8536aab47fd822da4011e220cb4d39e83cca60"
 }
