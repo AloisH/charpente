@@ -43,6 +43,8 @@ import { useUiStore } from "@/stores/ui";
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+// Statically false in production builds — the banner never ships.
+const isDev = import.meta.env.DEV;
 const { user, can, logout } = useAuth();
 const ui = useUiStore();
 
@@ -203,6 +205,16 @@ const isActive = (to: string): boolean => route.path.startsWith(to);
       </SidebarContent>
 
       <SidebarFooter>
+        <div
+          v-if="isDev"
+          class="flex items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-medium text-amber-600 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 dark:text-amber-400"
+          :title="t('common.devBanner')"
+        >
+          <TriangleAlert class="size-4 shrink-0" />
+          <span class="truncate group-data-[collapsible=icon]:hidden">
+            {{ t("common.devBanner") }}
+          </span>
+        </div>
         <NavUser />
       </SidebarFooter>
       <SidebarRail />

@@ -6,7 +6,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "error": "Something went wrong",
-    "retry": "Retry"
+    "retry": "Retry",
+    "devBanner": "Dev environment"
   },
   "auth": {
     "email": "Email",
