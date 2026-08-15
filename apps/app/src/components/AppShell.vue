@@ -23,7 +23,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import CommandPalette from "@/components/CommandPalette.vue";
-import ImpersonationBanner from "@/components/ImpersonationBanner.vue";
+import ImpersonationTile from "@/components/ImpersonationTile.vue";
 import NavUser from "@/components/NavUser.vue";
 import VerifyEmailBanner from "@/components/VerifyEmailBanner.vue";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -270,6 +270,7 @@ if (isDev) {
       </SidebarContent>
 
       <SidebarFooter>
+        <ImpersonationTile />
         <div
           v-if="isDev"
           class="relative flex items-center gap-2.5 overflow-hidden rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 px-2.5 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0"
@@ -305,7 +306,6 @@ if (isDev) {
           <h1 class="text-base font-semibold">{{ title }}</h1>
         </template>
       </header>
-      <ImpersonationBanner />
       <VerifyEmailBanner />
       <main class="flex-1 p-6">
         <slot />

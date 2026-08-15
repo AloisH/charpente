@@ -119,8 +119,8 @@
     "goUpload": "Upload a file"
   },
   "impersonation": {
-    "banner": "Impersonating {name} ({email}) — actions are performed as this user.",
     "stop": "Stop impersonating",
-    "stopped": "Back to your admin account."
+    "stopped": "Back to your admin account.",
+    "title": "Impersonating"
   }
 }

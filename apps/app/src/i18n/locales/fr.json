@@ -119,8 +119,8 @@
     "goUpload": "Envoyer un fichier"
   },
   "impersonation": {
-    "banner": "Vous incarnez {name} ({email}) — les actions sont effectuées en tant que cet utilisateur.",
     "stop": "Arrêter l'incarnation",
-    "stopped": "Retour à votre compte admin."
+    "stopped": "Retour à votre compte admin.",
+    "title": "Incarnation"
   }
 }

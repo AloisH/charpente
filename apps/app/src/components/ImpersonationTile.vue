@@ -1,7 +1,8 @@
 <script setup lang="ts">
-// Shown whenever the session is an admin wearing someone else's account —
-// unmissable on purpose, with the way out one click away.
-import { Loader2, VenetianMask } from "@lucide/vue";
+// Sidebar-footer tile shown while an admin wears someone else's account —
+// same visual language as the dev-environment tile just below it, violet so
+// the two never read as one thing. The X is the one-click way out.
+import { Loader2, VenetianMask, X } from "@lucide/vue";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
@@ -34,20 +35,32 @@ const stop = useMutation({
 <template>
   <div
     v-if="user?.impersonating === true"
-    class="flex items-center gap-3 border-b border-violet-500/40 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/10 to-violet-500/15 px-4 py-2 text-sm"
     role="alert"
+    :title="`${user.display_name} (${user.email})`"
+    class="relative flex items-center gap-2.5 overflow-hidden rounded-lg border border-violet-500/40 bg-gradient-to-r from-violet-500/15 via-fuchsia-500/10 to-violet-500/15 px-2.5 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0"
   >
     <span
       class="flex size-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow-sm"
     >
       <VenetianMask class="size-4" />
     </span>
-    <span class="flex-1">
-      {{ t("impersonation.banner", { name: user.display_name, email: user.email }) }}
-    </span>
-    <Button variant="outline" size="sm" :disabled="stop.isPending.value" @click="stop.mutate({})">
+    <div class="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
+      <span class="text-xs font-semibold text-violet-700 dark:text-violet-300">
+        {{ t("impersonation.title") }}
+      </span>
+      <span class="truncate text-[11px] text-muted-foreground">{{ user.display_name }}</span>
+    </div>
+    <Button
+      variant="ghost"
+      size="icon"
+      class="size-7 shrink-0 group-data-[collapsible=icon]:hidden"
+      :aria-label="t('impersonation.stop')"
+      :title="t('impersonation.stop')"
+      :disabled="stop.isPending.value"
+      @click="stop.mutate({})"
+    >
       <Loader2 v-if="stop.isPending.value" class="size-4 animate-spin" />
-      {{ t("impersonation.stop") }}
+      <X v-else class="size-4" />
     </Button>
   </div>
 </template>
